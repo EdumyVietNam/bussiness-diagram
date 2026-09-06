@@ -1,0 +1,895 @@
+// ==========================================
+// 1. IDENTITY TABLES (7 Bảng)
+// ==========================================
+Table AspNetUsers {
+  Id varchar(36) [pk]
+  UserName varchar(256) [unique]
+  NormalizedUserName varchar(256) [unique]
+  Email varchar(256)
+  NormalizedEmail varchar(256)
+  EmailConfirmed boolean
+  PasswordHash text
+  SecurityStamp text
+  ConcurrencyStamp text
+  PhoneNumber varchar
+  PhoneNumberConfirmed boolean
+  TwoFactorEnabled boolean
+  LockoutEnd timestamp
+  LockoutEnabled boolean
+  AccessFailedCount int
+
+  // Custom Profile Fields
+  FullName varchar(255) [default: 'Guest']
+  AvatarUrl varchar(500)
+  DateOfBirth timestamp
+  Gender int
+  Address varchar(500)
+  GoogleId varchar [unique]
+  LastLoginAt timestamp
+  
+  // BaseEntity Fields
+  CreatedAt timestamp
+  UpdatedAt timestamp
+  Status int [default: 1]
+  
+  // FKs
+  ProvinceId int
+  OccupationId int
+  LevelId int
+}
+
+Table AspNetRoles {
+  Id varchar(36) [pk]
+  Name varchar(256)
+  NormalizedName varchar(256) [unique]
+  ConcurrencyStamp text
+}
+
+Table AspNetUserRoles {
+  UserId varchar(36) [pk]
+  RoleId varchar(36) [pk]
+}
+
+Table AspNetUserClaims {
+  Id int [pk, increment]
+  UserId varchar(36)
+  ClaimType text
+  ClaimValue text
+}
+
+Table AspNetRoleClaims {
+  Id int [pk, increment]
+  RoleId varchar(36)
+  ClaimType text
+  ClaimValue text
+}
+
+Table AspNetUserLogins {
+  LoginProvider varchar(128) [pk]
+  ProviderKey varchar(128) [pk]
+  ProviderDisplayName text
+  UserId varchar(36)
+}
+
+Table AspNetUserTokens {
+  UserId varchar(36) [pk]
+  LoginProvider varchar(128) [pk]
+  Name varchar(128) [pk]
+  Value text
+}
+
+// ==========================================
+// 2. CUSTOM TOKENS (1 Bảng)
+// ==========================================
+Table UserActionTokens {
+  Id int [pk, increment]
+  UserId varchar(36)
+  TokenHash varchar [unique]
+  Email varchar(255)
+  Type int
+  ExpiresAt timestamp
+  UsedAt timestamp
+  Code varchar(50)
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+// ==========================================
+// 3. CATALOG TABLES (12 Bảng CAT_*)
+// ==========================================
+Table CAT_Provinces {
+  Id int [pk, increment]
+  ParentId int
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_Occupations {
+  Id int [pk, increment]
+  ParentId int
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_Levels {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_CourseTypes {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_Tags {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_SubjectCategories {
+  Id int [pk, increment]
+  ParentId int
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_DocumentTypes {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_ExamCategories {
+  Id int [pk, increment]
+  ParentId int
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_VoucherTypes {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_InstructorApplicationRequirements {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+}
+
+Table CAT_GradingRules {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+  MinScore decimal(5,2)
+  MaxScore decimal(5,2)
+  IsPass boolean
+}
+
+Table CAT_NotificationTypes {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+  Icon varchar(50)
+  Color varchar(50)
+}
+
+// ==========================================
+// 4. CORE BUSINESS TABLES (28 Bảng)
+// ==========================================
+
+// --- Courses Module ---
+Table Courses {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+  
+  Title varchar(255)
+  Price decimal(18,2)
+  PromotionPrice decimal(18,2)
+  ThumbnailUrl varchar(500)
+  CourseTypeId int
+  CreatorId varchar(36)
+  TagId int
+  SubjectCategoryId int
+  BusinessStatus int
+}
+
+Table CourseSections {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  CourseId int
+  Title varchar(255)
+  Order int
+  IsRequired boolean
+  TotalLessons int
+  CompletedLessons int
+  BusinessStatus int
+}
+
+Table Lessons {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  SectionId int
+  Order int
+  Type int
+  BusinessStatus int
+}
+
+Table Videos {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  LessonId int [unique]
+  Url varchar(1000)
+  YoutubeEmbed varchar(1000)
+  Title varchar(255)
+  HasStorage boolean
+  OriginalFileName varchar(500)
+  OriginalFileSize bigint
+  TempFilePath varchar(1000)
+  EncodedFileName varchar(500)
+  EncodedFileSize bigint
+  StoragePath varchar(1000)
+  Duration float
+  Width int
+  Height int
+  Codec varchar(50)
+  FPS float
+  Bitrate bigint
+  AudioCodec varchar(50)
+  AudioBitrate int
+  VideoStatus int
+  ErrorMessage varchar(2000)
+  RetryCount int
+  MaxRetries int
+  JobId varchar(100)
+  EncoderPreset varchar(50)
+}
+
+Table Resources {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  LessonId int [unique]
+  Url varchar(1000)
+  Title varchar(255)
+  DocumentTypeId int
+}
+
+Table Articles {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  LessonId int [unique]
+  Content text
+}
+
+// --- Exams & Quizzes Module ---
+Table Exams {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  Title varchar(255)
+  CreatorId varchar(36)
+  CourseId int
+  LessonId int [unique]
+  ExamCategoryId int
+  Price decimal(18,2)
+  PromotionPrice decimal(18,2)
+  ThumbnailUrl varchar(500)
+  DurationMinutes int
+  TotalPoints decimal(18,2)
+  PassingScore decimal(18,2)
+  BusinessStatus int
+}
+
+Table Questions {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  Content text
+  CreatorId varchar(36)
+  Point decimal(18,2)
+}
+
+Table QuestionOptions {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  QuestionId int
+  Content text
+  IsCorrect boolean
+}
+
+Table ExamQuestions {
+  ExamId int [pk]
+  QuestionId int [pk]
+  Point decimal(18,2)
+  SortOrder int
+}
+
+Table ExamAttempts {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  ExamId int
+  UserId varchar(36)
+  StartAt timestamp
+  SubmitAt timestamp
+  Score decimal(18,2)
+  TotalCorrect int
+  TotalQuestions int
+}
+
+Table AttemptQuestions {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  AttemptId int
+  QuestionId int
+  Order int
+}
+
+Table AttemptAnswers {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  AttemptId int
+  QuestionId int
+  SelectedOptionId int
+}
+
+// --- Enrollments, Payments & Vouchers ---
+Table Enrollments {
+  UserId varchar(36) [pk]
+  CourseId int [pk]
+  EnrolledAt timestamp
+  CompletedAt timestamp
+  Progress decimal(5,2)
+  Status int
+  IsCertificateIssued boolean
+  PaymentOrderId int
+}
+
+Table ExamEnrollments {
+  UserId varchar(36) [pk]
+  ExamId int [pk]
+  EnrolledAt timestamp
+  Status int
+  PaymentOrderId int
+}
+
+Table Vouchers {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  VoucherTypeId int
+  DiscountType int
+  DiscountValue decimal(18,2)
+  Condition text
+  MaxUsage int
+  CurrentUsage int
+  StartDate timestamp
+  EndDate timestamp
+}
+
+Table UserVouchers {
+  UserId varchar(36) [pk]
+  VoucherId int [pk]
+  ExpireAt timestamp
+  IsUsed boolean
+  UsedAt timestamp
+  PaymentOrderId int
+  CreatedAt timestamp
+}
+
+Table PaymentOrders {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  UserId varchar(36)
+  SubTotal decimal(18,2)
+  DiscountAmount decimal(18,2)
+  TotalAmount decimal(18,2)
+  VoucherId int
+  OrderStatus int
+  AccountNumber varchar(50)
+  BankName varchar(50)
+  QrUrl varchar(1000)
+  ExpiredAt timestamp
+  PaidAt timestamp
+  CancelledAt timestamp
+}
+
+Table PaymentTransactions {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  PaymentOrderId int
+  GatewayTransactionId varchar(50) [unique]
+  Gateway varchar(50)
+  AccountNumber varchar(50)
+  SubAccount varchar(50)
+  PaymentCode varchar(100)
+  Content varchar(500)
+  TransferType varchar(10)
+  TransferAmount decimal(18,2)
+  ReferenceCode varchar(100)
+  TransactionDate timestamp
+  RawPayload text
+  ProcessStatus int
+  ProcessedAt timestamp
+}
+
+// --- Instructors, Certificates & Comments ---
+Table UserDocuments {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  UserId varchar(36)
+  ApplicationTypeId int
+  FileUrl varchar(1000)
+  FileName varchar(255)
+  UploadedAt timestamp
+}
+
+Table InstructorRequests {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  UserId varchar(36)
+  RequestStatus int
+  Note text
+}
+
+Table Certificates {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  UserId varchar(36)
+  CourseId int
+  ExamId int
+  CertificateNumber varchar(50) [unique]
+  CertificateUrl varchar(1000)
+  IssuedAt timestamp
+}
+
+Table CourseComments {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  UserId varchar(36)
+  CourseId int
+  Content text
+  ParentCommentId int
+  Rating int
+}
+
+Table ExamComments {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+
+  UserId varchar(36)
+  ExamId int
+  Content text
+  ParentCommentId int
+  Rating int
+}
+
+// --- Notifications ---
+Table Notifications {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+  
+  NotificationTypeId int
+  Title varchar(500)
+  Content text
+  ActionUrl varchar(1000)
+  EntityType varchar(50)
+  EntityId int
+  IsGlobal boolean
+}
+
+Table UserNotifications {
+  NotificationId int [pk]
+  UserId varchar(36) [pk]
+  IsRead boolean
+  ReadAt timestamp
+  CreatedAt timestamp
+}
+
+// --- Conversations & Chat ---
+Table Conversations {
+  Id int [pk, increment]
+  Code varchar(50) [unique]
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder int
+  CreatedAt timestamp
+  CreatedBy varchar(255)
+  UpdatedAt timestamp
+  Status int
+  
+  StudentId varchar(36)
+  InstructorId varchar(36)
+  CourseId int
+  LastMessageAt timestamp
+  LastMessageSnippet varchar(500)
+}
+
+Table ChatMessages {
+  Id bigint [pk, increment]
+  ConversationId int
+  SenderId varchar(36)
+  Content text
+  IsRead boolean
+  CreatedAt timestamp
+  UpdatedAt timestamp
+}
+
+// ==========================================
+// 5. MAPPING RELATIONSHIPS (FOREIGN KEYS)
+// ==========================================
+
+// --- Identity Relationships ---
+Ref: AspNetUserRoles.UserId > AspNetUsers.Id [delete: cascade]
+Ref: AspNetUserRoles.RoleId > AspNetRoles.Id [delete: cascade]
+Ref: AspNetUserClaims.UserId > AspNetUsers.Id [delete: cascade]
+Ref: AspNetRoleClaims.RoleId > AspNetRoles.Id [delete: cascade]
+Ref: AspNetUserLogins.UserId > AspNetUsers.Id [delete: cascade]
+Ref: AspNetUserTokens.UserId > AspNetUsers.Id [delete: cascade]
+
+// --- User Profile & Token ---
+Ref: AspNetUsers.ProvinceId > CAT_Provinces.Id [delete: set null]
+Ref: AspNetUsers.OccupationId > CAT_Occupations.Id [delete: set null]
+Ref: AspNetUsers.LevelId > CAT_Levels.Id [delete: set null]
+Ref: UserActionTokens.UserId > AspNetUsers.Id [delete: cascade]
+
+// --- Tree Categories (Self-referencing) ---
+Ref: CAT_Provinces.ParentId > CAT_Provinces.Id [delete: no action]
+Ref: CAT_Occupations.ParentId > CAT_Occupations.Id [delete: no action]
+Ref: CAT_SubjectCategories.ParentId > CAT_SubjectCategories.Id [delete: no action]
+Ref: CAT_ExamCategories.ParentId > CAT_ExamCategories.Id [delete: no action]
+
+// --- Course Module ---
+Ref: Courses.CourseTypeId > CAT_CourseTypes.Id [delete: restrict]
+Ref: Courses.CreatorId > AspNetUsers.Id [delete: restrict]
+Ref: Courses.TagId > CAT_Tags.Id [delete: set null]
+Ref: Courses.SubjectCategoryId > CAT_SubjectCategories.Id [delete: set null]
+Ref: CourseSections.CourseId > Courses.Id [delete: cascade]
+Ref: Lessons.SectionId > CourseSections.Id [delete: cascade]
+
+// --- Lesson Content Module (1:1 with Cascade) ---
+Ref: Videos.LessonId - Lessons.Id [delete: cascade]
+Ref: Resources.LessonId - Lessons.Id [delete: cascade]
+Ref: Articles.LessonId - Lessons.Id [delete: cascade]
+Ref: Resources.DocumentTypeId > CAT_DocumentTypes.Id [delete: set null]
+
+// --- Exam & Quiz Module ---
+Ref: Exams.CreatorId > AspNetUsers.Id [delete: restrict]
+Ref: Exams.CourseId > Courses.Id [delete: set null]
+Ref: Exams.LessonId - Lessons.Id [delete: set null]
+Ref: Exams.ExamCategoryId > CAT_ExamCategories.Id [delete: set null]
+Ref: Questions.CreatorId > AspNetUsers.Id [delete: restrict]
+Ref: QuestionOptions.QuestionId > Questions.Id [delete: cascade]
+Ref: ExamQuestions.ExamId > Exams.Id [delete: cascade]
+Ref: ExamQuestions.QuestionId > Questions.Id [delete: restrict]
+
+// --- Exam Attempts Module ---
+Ref: ExamAttempts.ExamId > Exams.Id [delete: cascade]
+Ref: ExamAttempts.UserId > AspNetUsers.Id [delete: restrict]
+Ref: AttemptQuestions.AttemptId > ExamAttempts.Id [delete: cascade]
+Ref: AttemptQuestions.QuestionId > Questions.Id [delete: restrict]
+Ref: AttemptAnswers.AttemptId > ExamAttempts.Id [delete: cascade]
+Ref: AttemptAnswers.QuestionId > Questions.Id [delete: restrict]
+Ref: AttemptAnswers.SelectedOptionId > QuestionOptions.Id [delete: set null]
+
+// --- Enrollment & Payment Module ---
+Ref: Enrollments.UserId > AspNetUsers.Id [delete: restrict]
+Ref: Enrollments.CourseId > Courses.Id [delete: cascade]
+Ref: Enrollments.PaymentOrderId > PaymentOrders.Id [delete: set null]
+Ref: ExamEnrollments.UserId > AspNetUsers.Id [delete: restrict]
+Ref: ExamEnrollments.ExamId > Exams.Id [delete: cascade]
+Ref: ExamEnrollments.PaymentOrderId > PaymentOrders.Id [delete: set null]
+
+Ref: PaymentOrders.UserId > AspNetUsers.Id [delete: restrict]
+Ref: PaymentOrders.VoucherId > Vouchers.Id [delete: set null]
+Ref: PaymentTransactions.PaymentOrderId > PaymentOrders.Id [delete: set null]
+
+Ref: Vouchers.VoucherTypeId > CAT_VoucherTypes.Id [delete: restrict]
+Ref: UserVouchers.UserId > AspNetUsers.Id [delete: restrict]
+Ref: UserVouchers.VoucherId > Vouchers.Id [delete: cascade]
+Ref: UserVouchers.PaymentOrderId > PaymentOrders.Id [delete: set null]
+
+// --- Instructor, Certificate & Comment Module ---
+Ref: UserDocuments.UserId > AspNetUsers.Id [delete: cascade]
+Ref: UserDocuments.ApplicationTypeId > CAT_InstructorApplicationRequirements.Id [delete: restrict]
+Ref: InstructorRequests.UserId > AspNetUsers.Id [delete: cascade]
+Ref: Certificates.UserId > AspNetUsers.Id [delete: cascade]
+Ref: Certificates.CourseId > Courses.Id [delete: set null]
+Ref: Certificates.ExamId > Exams.Id [delete: set null]
+
+Ref: CourseComments.UserId > AspNetUsers.Id [delete: cascade]
+Ref: CourseComments.CourseId > Courses.Id [delete: cascade]
+Ref: CourseComments.ParentCommentId > CourseComments.Id [delete: restrict]
+
+Ref: ExamComments.UserId > AspNetUsers.Id [delete: cascade]
+Ref: ExamComments.ExamId > Exams.Id [delete: cascade]
+Ref: ExamComments.ParentCommentId > ExamComments.Id [delete: restrict]
+
+// --- Notifications Module ---
+Ref: Notifications.NotificationTypeId > CAT_NotificationTypes.Id [delete: restrict]
+Ref: UserNotifications.NotificationId > Notifications.Id [delete: cascade]
+Ref: UserNotifications.UserId > AspNetUsers.Id [delete: cascade]
+
+// --- Conversations & Chat Module ---
+Ref: Conversations.StudentId > AspNetUsers.Id [delete: restrict]
+Ref: Conversations.InstructorId > AspNetUsers.Id [delete: restrict]
+Ref: Conversations.CourseId > Courses.Id [delete: set null]
+Ref: ChatMessages.ConversationId > Conversations.Id [delete: cascade]
+Ref: ChatMessages.SenderId > AspNetUsers.Id [delete: restrict]

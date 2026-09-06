@@ -1,0 +1,20 @@
+# Business Use Case: Đăng ký trở thành giảng viên
+
+## Tổng quan
+
+Tài liệu mô tả quy trình nghiệp vụ đăng ký trở thành giảng viên trên nền tảng giáo dục, tập trung vào tương tác giữa **Ứng viên** và **Ban xét duyệt (Admin)**.
+
+## Bảng đặc tả quy trình
+
+| Tên Use Case                     | Mô tả                                                                                                                                   | Dòng cơ bản                                                                                                                                               | Dòng thay thế                                                                                                                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Đăng ký trở thành giảng viên** | Ứng viên nộp hồ sơ năng lực để đề nghị được công nhận là giảng viên; Ban xét duyệt tiếp nhận, thẩm định và đưa ra quyết định cuối cùng. | **B1.** Ứng viên chuẩn bị và nộp bộ hồ sơ năng lực (CV, bằng cấp, chứng chỉ chuyên môn) cho Ban xét duyệt.                                                | **AT1.** Hồ sơ thiếu giấy tờ xác minh cốt lõi: Ban xét duyệt liên hệ Ứng viên yêu cầu bổ sung đầy đủ giấy tờ trước khi bước vào thẩm định.                                       |
+|                                  |                                                                                                                                         | **B2.** Ban xét duyệt tiếp nhận hồ sơ và kiểm tra tính hợp lệ của các giấy tờ đính kèm (xác minh cơ quan cấp, thời hạn hiệu lực, sự khớp lệch thông tin). | **AT2.** Giấy tờ có dấu hiệu giả mạo hoặc không khớp lệch: Ban xét duyệt tạm dừng quy trình, yêu cầu Ứng viên giải trình bằng văn bản hoặc cung cấp giấy tờ thay thế.            |
+|                                  |                                                                                                                                         | **B3.** Ban xét duyệt đánh giá năng lực chuyên môn của Ứng viên dựa trên nội dung hồ sơ (kinh nghiệm giảng dạy, lĩnh vực chuyên môn, thành tích).         | **AT3.** Hồ sơ hợp lệ nhưng năng lực chuyên môn chưa đạt yêu cầu: Ban xét duyệt thông báo lý do và khuyến khích Ứng viên hoàn thiện thêm rồi nộp lại trong đợt kế tiếp.          |
+|                                  |                                                                                                                                         | **B4.** Ban xét duyệt đưa ra quyết định: **Phê duyệt** hoặc **Từ chối**.                                                                                  | **AT4.** Ứng viên không phản hồi yêu cầu bổ sung/sửa đổi trong thời gian quy định: Ban xét duyệt đóng hồ sơ và đánh dấu là "Hủy do hết hạn".                                     |
+|                                  |                                                                                                                                         | **B5.** Ban xét duyệt gửi thông báo kết quả chính thức (Phê duyệt / Từ chối kèm lý do) cho Ứng viên.                                                      | **AT5.** Ứng viên không đồng ý với quyết định từ chối: Ứng viên có quyền khiếu nại bằng văn bản trong vòng 15 ngày; Ban xét duyệt thụ lý và xem xét lại hồ sơ một lần cuối cùng. |
+
+## Ghi chú
+
+- **Ban xét duyệt (Admin)** là bộ phận có thẩm quyền quyết định việc công nhận giảng viên, độc lập với quy trình kỹ thuật của hệ thống.
+- **Dòng thay thế (AT)** được sắp xếp theo thứ tự thời gian có thể xảy ra trong suốt quy trình, từ kiểm tra hồ sơ đến sau khi ra quyết định.
