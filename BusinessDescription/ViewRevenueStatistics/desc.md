@@ -1,0 +1,12 @@
+# Business Use Case: Xem thống kê doanh thu
+
+| Trường thông tin | Nội dung |
+| --- | --- |
+| **1. Tên Use case** | Xem thống kê doanh thu |
+| **2. Tóm tắt** | Giảng viên và Quản trị viên tra cứu, phân tích doanh thu sinh ra từ các khóa học và đề thi trên nền tảng, bao gồm doanh thu theo thời gian, theo từng khóa học/đề thi, và tỷ lệ chuyển đổi thanh toán. |
+| **3. Tác nhân** | **Giảng viên** — Người tạo nội dung và được xem doanh thu từ khóa học/đề thi do mình tạo. / **Quản trị viên (Admin)** — Người có thẩm quyền xem toàn bộ doanh thu hệ thống và doanh thu từng giảng viên. |
+| **4. Use case liên quan** | — **Include:** Không có (Use case độc lập, không phụ thuộc quy trình khác). / — **Extend:** Không có. |
+| **5. Dòng sự kiện chính** | 1. **Giảng viên** truy cập trang xem thống kê doanh thu trên hệ thống. / 2. **Hệ thống** hiển thị báo cáo doanh thu của Giảng viên: tổng doanh thu, doanh thu theo từng khóa học/đề thi, số lượng giao dịch thành công. / 3. **Giảng viên** chọn khoảng thời gian cần xem (tuần, tháng, quý, năm). / 4. **Hệ thống** lọc dữ liệu theo khoảng thời gian và hiển thị kết quả. / 5. **Giảng viên** xem báo cáo và đối chiếu dữ liệu. / 6. Use case kết thúc. |
+| **6. Dòng sự kiện phụ** | **A1: Không có dữ liệu doanh thu** (Tại bước 2) / 1. **Hệ thống** hiển thị thông báo: "Hiện tại chưa có giao dịch thành công nào." / 2. **Hệ thống** hiển thị báo cáo rỗng. / 3. Use case kết thúc. / \-\-\- / **A2: Giảng viên yêu cầu chi tiết theo khoảng thời gian** (Tại bước 3) / 1. **Giảng viên** chọn khoảng thời gian cụ thể (tháng, quý, năm). / 2. **Hệ thống** lọc dữ liệu theo khoảng thời gian yêu cầu và hiển thị báo cáo chi tiết. / 3. Quy trình tiếp tục từ Bước 5. / \-\-\- / **A3: Phát hiện sai sót trong báo cáo** (Tại bước 5) / 1. **Giảng viên** phát hiện số liệu không khớp với dữ liệu cá nhân. / 2. **Giảng viên** gửi yêu cầu phúc thẩm cho Admin. / 3. **Admin** rà soát lại dữ liệu gốc và cập nhật báo cáo nếu cần. / 4. **Admin** gửi báo cáo đã chỉnh sửa cho Giảng viên. / 5. Use case kết thúc. |
+| **7. Điều kiện tiên quyết** | 1. Giảng viên phải có ít nhất một khóa học hoặc đề thi đã được phê duyệt và mở bán trên hệ thống. / 2. Dữ liệu giao dịch (PaymentOrders, PaymentTransactions) phải được lưu trữ đầy đủ trong hệ thống. |
+| **8. Hậu điều kiện** | 1. Giảng viên nhận được báo cáo doanh thu chính xác theo yêu cầu. / 2. Nếu có sai sót, báo cáo chỉnh sửa được thay thế và báo cáo gốc được đánh dấu là "Đã hiệu chính". |
