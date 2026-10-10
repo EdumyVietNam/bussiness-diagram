@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="edumy_sys_uc" name="Edumy System Use Case">
-        <mxGraphModel dx="2412" dy="1265" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1920" dy="773" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -11,10 +11,10 @@
                     <mxGeometry x="1129" y="260" width="40" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="a_adm" value="Quản trị viên" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-                    <mxGeometry x="1050" y="750" width="40" height="80" as="geometry"/>
+                    <mxGeometry x="990" y="640" width="40" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_auth" value="Đăng nhập / Đăng ký" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="550" y="200" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="560" y="240" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_prof" value="Quản lý hồ sơ cá nhân" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
                     <mxGeometry x="540" y="500" width="150" height="60" as="geometry"/>
@@ -23,10 +23,10 @@
                     <mxGeometry x="400" y="650" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_search" value="Xem khóa học&amp;nbsp;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="100" y="180" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="170" y="230" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_filter" value="Tìm kiếm khóa học" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="340" y="130" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="370" y="190" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_buy" value="Đăng ký khóa học" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
                     <mxGeometry x="240" y="320" width="150" height="60" as="geometry"/>
@@ -47,25 +47,25 @@
                     <mxGeometry x="250" y="750" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_req_ins" value="Đăng ký làm Giảng viên" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="180" y="920" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="160" y="830" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_up" value="Upload Video / File" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="680" y="10" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="710" y="160" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_m_crs" value="Tạo &amp;amp; Quản lý&amp;nbsp;&lt;div&gt;nội dung khóa&lt;/div&gt;&lt;div&gt;học&lt;/div&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="890" y="100" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="970" y="200" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_m_exm" value="Tạo &amp; Quản lý đề thi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
                     <mxGeometry x="780" y="280" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_a_ins" value="Duyệt yêu cầu Giảng viên" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="550" y="980" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="550" y="810" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_a_usr" value="Quản lý người dùng" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="730" y="700" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="710" y="630" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="uc_conf" value="Cấu hình hệ thống" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
-                    <mxGeometry x="610" y="830" width="150" height="60" as="geometry"/>
+                    <mxGeometry x="585" y="710" width="150" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="e1" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="a_std" target="uc_auth" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -140,47 +140,47 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="4" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1" source="uc_a_ins" target="uc_req_ins">
+                <mxCell id="4" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" parent="1" source="uc_a_ins" target="uc_req_ins" edge="1">
                     <mxGeometry x="-0.0847" y="-2" relative="1" as="geometry">
                         <mxPoint x="500" y="990" as="sourcePoint"/>
                         <mxPoint x="420" y="990" as="targetPoint"/>
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="5" value="Cấp lại mật khẩu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
-                    <mxGeometry x="550" y="80" width="150" height="60" as="geometry"/>
+                <mxCell id="5" value="Cấp lại mật khẩu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+                    <mxGeometry x="520" y="140" width="150" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="8" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" edge="1" parent="1" source="5" target="uc_auth">
+                <mxCell id="8" value="&amp;lt;&amp;lt;extend&amp;gt;&amp;gt;" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;curved=0;rounded=0;" parent="1" source="5" target="uc_auth" edge="1">
                     <mxGeometry x="0.3924" y="27" relative="1" as="geometry">
                         <mxPoint x="720" y="290" as="sourcePoint"/>
                         <mxPoint x="640" y="290" as="targetPoint"/>
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="9" value="«extend»" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;labelBackgroundColor=none;" edge="1" parent="1" source="uc_disc" target="uc_quiz">
+                <mxCell id="9" value="«extend»" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;labelBackgroundColor=none;" parent="1" source="uc_disc" target="uc_quiz" edge="1">
                     <mxGeometry x="0.251" y="-19" relative="1" as="geometry">
                         <mxPoint as="offset"/>
                         <mxPoint x="472" y="654" as="sourcePoint"/>
                         <mxPoint x="330" y="590" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="10" value="«extend»" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;labelBackgroundColor=none;exitX=0.229;exitY=0.122;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="uc_disc" target="uc_learn">
+                <mxCell id="10" value="«extend»" style="endArrow=open;endSize=12;dashed=1;html=1;rounded=0;strokeColor=#000000;labelBackgroundColor=none;exitX=0.229;exitY=0.122;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="uc_disc" target="uc_learn" edge="1">
                     <mxGeometry x="-0.2112" y="-24" relative="1" as="geometry">
                         <mxPoint as="offset"/>
                         <mxPoint x="606" y="647" as="sourcePoint"/>
                         <mxPoint x="464" y="583" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="11" value="Xem báo cáo doanh thu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+                <mxCell id="11" value="Xem báo cáo doanh thu" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="530" width="150" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="17" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="a_adm" target="11">
+                <mxCell id="17" value="" style="endArrow=none;html=1;" parent="1" source="a_adm" target="11" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="1040" y="650" as="sourcePoint"/>
                         <mxPoint x="1090" y="600" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="18" value="" style="endArrow=none;html=1;" edge="1" parent="1" source="11" target="a_ins">
+                <mxCell id="18" value="" style="endArrow=none;html=1;" parent="1" source="11" target="a_ins" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="1129" y="590" as="sourcePoint"/>
                         <mxPoint x="1147" y="390" as="targetPoint"/>

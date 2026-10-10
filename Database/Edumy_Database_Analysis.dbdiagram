@@ -1273,6 +1273,141 @@
         "secondSchemaName": "public",
         "secondRelation": "1",
         "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamCategoryId"
+        ],
+        "firstTableName": "Exams",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_ExamCategories",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "NotificationTypeId"
+        ],
+        "firstTableName": "Notifications",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_NotificationTypes",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "NotificationId"
+        ],
+        "firstTableName": "UserNotifications",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Notifications",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "UserNotifications",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "StudentId"
+        ],
+        "firstTableName": "Conversations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "InstructorId"
+        ],
+        "firstTableName": "Conversations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "Conversations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ConversationId"
+        ],
+        "firstTableName": "ChatMessages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Conversations",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "SenderId"
+        ],
+        "firstTableName": "ChatMessages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
       }
     ]
   },
