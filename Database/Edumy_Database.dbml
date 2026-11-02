@@ -1,0 +1,1666 @@
+// EDUMY database diagram — verified against live PostgreSQL on 2026-11-02.
+// Source: SystemManagementModule Development connection; schema metadata only (read-only).
+// Includes 65 tables and 94 foreign keys across public and ai.
+// __EFMigrationsHistory is omitted as EF infrastructure. Partial-index predicates are recorded in notes.
+Project EdumySystemManagement {
+  database_type: 'PostgreSQL'
+}
+
+Table public.AspNetRoles {
+  Id text [not null]
+  Name varchar(256)
+  NormalizedName varchar(256)
+  ConcurrencyStamp text
+  indexes {
+    (Id) [name: 'PK_AspNetRoles', pk]
+    (NormalizedName) [name: 'RoleNameIndex', unique]
+  }
+}
+
+Table public.AspNetRoleClaims {
+  Id integer [not null, increment]
+  RoleId text [not null]
+  ClaimType text
+  ClaimValue text
+  indexes {
+    (Id) [name: 'PK_AspNetRoleClaims', pk]
+    (RoleId) [name: 'IX_AspNetRoleClaims_RoleId']
+  }
+}
+
+Table public.AspNetUserClaims {
+  Id integer [not null, increment]
+  UserId text [not null]
+  ClaimType text
+  ClaimValue text
+  indexes {
+    (Id) [name: 'PK_AspNetUserClaims', pk]
+    (UserId) [name: 'IX_AspNetUserClaims_UserId']
+  }
+}
+
+Table public.AspNetUserLogins {
+  LoginProvider text [not null]
+  ProviderKey text [not null]
+  ProviderDisplayName text
+  UserId text [not null]
+  indexes {
+    (LoginProvider, ProviderKey) [name: 'PK_AspNetUserLogins', pk]
+    (UserId) [name: 'IX_AspNetUserLogins_UserId']
+  }
+}
+
+Table public.AspNetUserRoles {
+  UserId text [not null]
+  RoleId text [not null]
+  indexes {
+    (UserId, RoleId) [name: 'PK_AspNetUserRoles', pk]
+    (RoleId) [name: 'IX_AspNetUserRoles_RoleId']
+  }
+}
+
+Table public.AspNetUserTokens {
+  UserId text [not null]
+  LoginProvider text [not null]
+  Name text [not null]
+  Value text
+  indexes {
+    (UserId, LoginProvider, Name) [name: 'PK_AspNetUserTokens', pk]
+  }
+}
+
+Table ai.chunks [note: 'PostgreSQL-only AI table; embedding is vector(768).'] {
+  id uuid [not null]
+  chunk_index integer [not null]
+  content text [not null]
+  content_hash varchar(64) [not null]
+  course_id integer [not null]
+  course_title text [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  embedding vector(768) [not null]
+  generation_id uuid [not null]
+  heading text
+  lesson_id integer
+  lesson_title text
+  section_id integer
+  section_title text
+  source_id integer [not null]
+  source_type varchar(24) [not null]
+  indexes {
+    (id) [name: 'PK_chunks', pk]
+    (course_id, generation_id) [name: 'ix_chunks_course_generation']
+    (course_id, generation_id, source_type, source_id, chunk_index) [name: 'ux_chunks_source_position', unique]
+  }
+  checks {
+    `(length(btrim(content)) > 0)` [name: 'ck_chunks_content']
+    `((source_id > 0) AND (chunk_index >= 0))` [name: 'ck_chunks_source']
+    `((source_type)::text = ANY ((ARRAY['course_metadata'::character varying, 'section_metadata'::character varying, 'lesson_metadata'::character varying, 'article'::character varying])::text[]))` [name: 'ck_chunks_source_type']
+  }
+}
+
+Table ai.course_indexes [note: 'PostgreSQL-only AI table; active generation is unique per course.'] {
+  course_id integer [not null]
+  generation_id uuid [not null]
+  chunking_version varchar(64) [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  embedding_digest varchar(64) [not null]
+  embedding_dimension integer [not null, default: `768`]
+  embedding_model varchar(200) [not null]
+  is_active boolean [not null, default: `false`]
+  normalization_version varchar(64) [not null]
+  prefix_version varchar(64) [not null]
+  source_fingerprint varchar(64) [not null]
+  status varchar(16) [not null]
+  updated_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  indexes {
+    (course_id, generation_id) [name: 'PK_course_indexes', pk]
+    (course_id) [name: 'ux_course_indexes_active_course', unique, note: 'Filter: is_active']
+  }
+  checks {
+    `((NOT is_active) OR ((status)::text = 'ready'::text))` [name: 'ck_course_indexes_active_ready']
+    `(course_id > 0)` [name: 'ck_course_indexes_course']
+    `(embedding_dimension = 768)` [name: 'ck_course_indexes_dimension']
+    `((status)::text = ANY ((ARRAY['building'::character varying, 'ready'::character varying, 'failed'::character varying, 'interrupted'::character varying])::text[]))` [name: 'ck_course_indexes_status']
+  }
+}
+
+Table ai.reindex_jobs [note: 'PostgreSQL-only AI table; one queued/running job per course.'] {
+  id uuid [not null]
+  chunk_count integer [not null]
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  error_code varchar(100)
+  finished_at "timestamp with time zone"
+  generation_id uuid [not null]
+  source_count integer [not null]
+  started_at "timestamp with time zone"
+  status varchar(16) [not null]
+  indexes {
+    (id) [name: 'PK_reindex_jobs', pk]
+    (course_id, generation_id) [name: 'ix_reindex_jobs_course_generation']
+    (status, created_at) [name: 'ix_reindex_jobs_status_created']
+    (course_id) [name: 'ux_reindex_jobs_in_progress', unique, note: 'Filter: ((status)::text = ANY ((ARRAY[\'queued\'::character varying, \'running\'::character varying])::text[]))']
+  }
+  checks {
+    `((source_count >= 0) AND (chunk_count >= 0))` [name: 'ck_reindex_jobs_counts']
+    `((status)::text = ANY ((ARRAY['queued'::character varying, 'running'::character varying, 'completed'::character varying, 'failed'::character varying, 'interrupted'::character varying])::text[]))` [name: 'ck_reindex_jobs_status']
+  }
+}
+
+Table public.Articles {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  LessonId integer [not null]
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_Articles', pk]
+    (LessonId) [name: 'IX_Articles_LessonId', unique]
+  }
+}
+
+Table public.AspNetUsers {
+  Id text [not null]
+  AccessFailedCount integer [not null]
+  Address text
+  AvatarUrl text
+  ConcurrencyStamp text
+  CreatedAt "timestamp with time zone" [not null]
+  DateOfBirth "timestamp with time zone"
+  Description text
+  Email varchar(256)
+  EmailConfirmed boolean [not null]
+  FullName text [not null]
+  Gender smallint
+  GoogleId text
+  LastLoginAt "timestamp with time zone"
+  LevelId integer
+  LockoutEnabled boolean [not null]
+  LockoutEnd "timestamp with time zone"
+  NormalizedEmail varchar(256)
+  NormalizedUserName varchar(256)
+  OccupationId integer
+  PasswordHash text
+  PhoneNumber text
+  PhoneNumberConfirmed boolean [not null]
+  ProvinceId integer
+  SecurityStamp text
+  Status integer [not null]
+  TwoFactorEnabled boolean [not null]
+  UpdatedAt "timestamp with time zone"
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+    (NormalizedEmail) [name: 'EmailIndex']
+    (CreatedAt) [name: 'IX_AspNetUsers_CreatedAt']
+    (GoogleId) [name: 'IX_AspNetUsers_GoogleId', unique]
+    (LevelId) [name: 'IX_AspNetUsers_LevelId']
+    (OccupationId) [name: 'IX_AspNetUsers_OccupationId']
+    (ProvinceId) [name: 'IX_AspNetUsers_ProvinceId']
+    (NormalizedUserName) [name: 'UserNameIndex', unique]
+  }
+}
+
+Table public.AttemptAnswers {
+  Id integer [not null, increment]
+  AttemptId integer [not null]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  QuestionId integer [not null]
+  SelectedOptionId integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_AttemptAnswers', pk]
+    (AttemptId, QuestionId) [name: 'IX_AttemptAnswers_AttemptId_QuestionId', unique]
+    (QuestionId) [name: 'IX_AttemptAnswers_QuestionId']
+    (SelectedOptionId) [name: 'IX_AttemptAnswers_SelectedOptionId']
+  }
+}
+
+Table public.AttemptQuestions {
+  Id integer [not null, increment]
+  AttemptId integer [not null]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  Order integer [not null]
+  QuestionId integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_AttemptQuestions', pk]
+    (AttemptId, QuestionId) [name: 'IX_AttemptQuestions_AttemptId_QuestionId', unique]
+    (QuestionId) [name: 'IX_AttemptQuestions_QuestionId']
+  }
+}
+
+Table public.CAT_CourseTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_CourseTypes', pk]
+    (Code) [name: 'IX_CAT_CourseTypes_Code', unique]
+    (Name) [name: 'IX_CAT_CourseTypes_Name']
+    (Status) [name: 'IX_CAT_CourseTypes_Status']
+  }
+}
+
+Table public.CAT_DocumentTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_DocumentTypes', pk]
+    (Code) [name: 'IX_CAT_DocumentTypes_Code', unique]
+    (Name) [name: 'IX_CAT_DocumentTypes_Name']
+    (Status) [name: 'IX_CAT_DocumentTypes_Status']
+  }
+}
+
+Table public.CAT_ExamCategories {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_ExamCategories', pk]
+    (Code) [name: 'IX_CAT_ExamCategories_Code', unique]
+    (Name) [name: 'IX_CAT_ExamCategories_Name']
+    (ParentId) [name: 'IX_CAT_ExamCategories_ParentId']
+    (Status) [name: 'IX_CAT_ExamCategories_Status']
+  }
+}
+
+Table public.CAT_GradingRules {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  IsPass boolean [not null]
+  MaxScore numeric(5,2) [not null]
+  MinScore numeric(5,2) [not null]
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_GradingRules', pk]
+    (Code) [name: 'IX_CAT_GradingRules_Code', unique]
+    (Name) [name: 'IX_CAT_GradingRules_Name']
+    (Status) [name: 'IX_CAT_GradingRules_Status']
+  }
+  checks {
+    `("MinScore" <= "MaxScore")` [name: 'CK_CAT_GradingRules_ScoreRange']
+  }
+}
+
+Table public.CAT_InstructorApplicationRequirements {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_InstructorApplicationRequirements', pk]
+    (Code) [name: 'IX_CAT_InstructorApplicationRequirements_Code', unique]
+    (Name) [name: 'IX_CAT_InstructorApplicationRequirements_Name']
+    (Status) [name: 'IX_CAT_InstructorApplicationRequirements_Status']
+  }
+}
+
+Table public.CAT_Levels {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_Levels', pk]
+    (Code) [name: 'IX_CAT_Levels_Code', unique]
+    (Name) [name: 'IX_CAT_Levels_Name']
+    (Status) [name: 'IX_CAT_Levels_Status']
+  }
+}
+
+Table public.CAT_NotificationTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Color varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  Icon varchar(50)
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_NotificationTypes', pk]
+    (Code) [name: 'IX_CAT_NotificationTypes_Code', unique]
+    (Name) [name: 'IX_CAT_NotificationTypes_Name']
+    (Status) [name: 'IX_CAT_NotificationTypes_Status']
+  }
+}
+
+Table public.CAT_Occupations {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_Occupations', pk]
+    (Code) [name: 'IX_CAT_Occupations_Code', unique]
+    (Name) [name: 'IX_CAT_Occupations_Name']
+    (ParentId) [name: 'IX_CAT_Occupations_ParentId']
+    (Status) [name: 'IX_CAT_Occupations_Status']
+  }
+}
+
+Table public.CAT_Provinces {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_Provinces', pk]
+    (Code) [name: 'IX_CAT_Provinces_Code', unique]
+    (Name) [name: 'IX_CAT_Provinces_Name']
+    (ParentId) [name: 'IX_CAT_Provinces_ParentId']
+    (Status) [name: 'IX_CAT_Provinces_Status']
+  }
+}
+
+Table public.CAT_SubjectCategories {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_SubjectCategories', pk]
+    (Code) [name: 'IX_CAT_SubjectCategories_Code', unique]
+    (Name) [name: 'IX_CAT_SubjectCategories_Name']
+    (ParentId) [name: 'IX_CAT_SubjectCategories_ParentId']
+    (Status) [name: 'IX_CAT_SubjectCategories_Status']
+  }
+}
+
+Table public.CAT_Tags {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_Tags', pk]
+    (Code) [name: 'IX_CAT_Tags_Code', unique]
+    (Name) [name: 'IX_CAT_Tags_Name']
+    (Status) [name: 'IX_CAT_Tags_Status']
+  }
+}
+
+Table public.CAT_VoucherTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CAT_VoucherTypes', pk]
+    (Code) [name: 'IX_CAT_VoucherTypes_Code', unique]
+    (Name) [name: 'IX_CAT_VoucherTypes_Name']
+    (Status) [name: 'IX_CAT_VoucherTypes_Status']
+  }
+}
+
+Table public.Certificates {
+  Id integer [not null, increment]
+  CertificateNumber varchar(50)
+  CertificateUrl varchar(1000)
+  Code varchar(50)
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  ExamId integer
+  IsDefault boolean
+  IssuedAt "timestamp with time zone" [not null]
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Certificates', pk]
+    (CertificateNumber) [name: 'IX_Certificates_CertificateNumber', unique]
+    (CourseId) [name: 'IX_Certificates_CourseId']
+    (ExamId) [name: 'IX_Certificates_ExamId']
+    (UserId) [name: 'IX_Certificates_UserId']
+  }
+}
+
+Table public.ChatMessages {
+  Id bigint [not null, increment]
+  ClientMessageId uuid [not null]
+  Content text [not null]
+  ConversationId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  IsRead boolean [not null]
+  ReadAt "timestamp with time zone"
+  SenderId varchar(36) [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_ChatMessages', pk]
+    (ConversationId, Id) [name: 'IX_ChatMessages_ConversationId_Id']
+    (IsRead) [name: 'IX_ChatMessages_IsRead']
+    (SenderId, ClientMessageId) [name: 'IX_ChatMessages_SenderId_ClientMessageId', unique]
+  }
+}
+
+Table public.Conversations {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  InstructorId varchar(36) [not null]
+  IsDefault boolean
+  LastMessageAt "timestamp with time zone"
+  LastMessageSnippet varchar(500)
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  StudentId varchar(36) [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_Conversations', pk]
+    (CourseId) [name: 'IX_Conversations_CourseId']
+    (InstructorId) [name: 'IX_Conversations_InstructorId']
+    (LastMessageAt) [name: 'IX_Conversations_LastMessageAt']
+    (StudentId, InstructorId, CourseId) [name: 'IX_Conversations_StudentId_InstructorId_CourseId', unique]
+  }
+}
+
+Table public.CourseComments [note: 'Partial unique rating index UX_CourseComments_UserRating applies to top-level active ratings.'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Content text [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  ParentCommentId integer
+  Rating integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_CourseComments', pk]
+    (CourseId) [name: 'IX_CourseComments_CourseId']
+    (ParentCommentId) [name: 'IX_CourseComments_ParentCommentId']
+    (UserId) [name: 'IX_CourseComments_UserId']
+    (UserId, CourseId) [name: 'UX_CourseComments_UserRating', unique, note: 'Filter: (("ParentCommentId" IS NULL) AND ("Rating" IS NOT NULL) AND ("Status" <> \'-1\'::integer))']
+  }
+}
+
+Table public.CourseSections {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  Code varchar(50)
+  CompletedLessons integer [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  IsRequired boolean [not null]
+  Name varchar(255)
+  Order integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  Title varchar(255) [not null]
+  TotalLessons integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CourseSections', pk]
+    (CourseId) [name: 'IX_CourseSections_CourseId']
+  }
+}
+
+Table public.Courses {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  Code varchar(50)
+  CourseTypeId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  CreatorId varchar(36) [not null]
+  Description text
+  HasCertificate boolean [not null, default: `false`]
+  IsDefault boolean
+  Name varchar(255)
+  Price numeric(18,2) [not null]
+  PromotionPrice numeric
+  ReviewNote varchar(2000)
+  ReviewedAt "timestamp with time zone"
+  ReviewedBy varchar(36)
+  SortOrder integer
+  Status integer [not null]
+  SubjectCategoryId integer
+  SubmittedAt "timestamp with time zone"
+  TagId integer
+  ThumbnailUrl varchar(500)
+  Title varchar(255) [not null]
+  UpdatedAt "timestamp with time zone"
+  HasEssay boolean [default: `false`]
+  indexes {
+    (Id) [name: 'PK_Courses', pk]
+    (CourseTypeId) [name: 'IX_Courses_CourseTypeId']
+    (CreatorId) [name: 'IX_Courses_CreatorId']
+    (Status) [name: 'IX_Courses_Status']
+    (SubjectCategoryId) [name: 'IX_Courses_SubjectCategoryId']
+    (TagId) [name: 'IX_Courses_TagId']
+  }
+}
+
+Table public.EnrollmentSectionCompletions [note: 'Composite shadow FK to Enrollments via (UserId, CourseId).'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CompletedAt "timestamp with time zone" [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SectionId integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_EnrollmentSectionCompletions', pk]
+    (SectionId) [name: 'IX_EnrollmentSectionCompletions_SectionId']
+    (UserId, CourseId, SectionId) [name: 'IX_EnrollmentSectionCompletions_UserId_CourseId_SectionId', unique]
+  }
+}
+
+Table public.Enrollments {
+  UserId varchar(36) [not null]
+  CourseId integer [not null]
+  CompletedAt "timestamp with time zone"
+  EnrolledAt "timestamp with time zone" [not null]
+  IsCertificateIssued boolean [not null]
+  PaymentOrderId integer
+  Progress numeric(5,2) [not null]
+  Status integer [not null]
+  indexes {
+    (UserId, CourseId) [name: 'PK_Enrollments', pk]
+    (CourseId) [name: 'IX_Enrollments_CourseId']
+    (PaymentOrderId) [name: 'IX_Enrollments_PaymentOrderId']
+    (Status) [name: 'IX_Enrollments_Status']
+  }
+}
+
+Table public.ExamAttempts {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  ExamId integer [not null]
+  IsDefault boolean
+  Name varchar(255)
+  PassingScoreSnapshot numeric(18,2)
+  Score numeric(18,2)
+  SortOrder integer
+  StartAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  SubmitAt "timestamp with time zone"
+  TotalCorrect integer
+  TotalQuestions integer
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ExamAttempts', pk]
+    (ExamId) [name: 'IX_ExamAttempts_ExamId']
+    (UserId) [name: 'IX_ExamAttempts_UserId']
+  }
+  checks {
+    `(("PassingScoreSnapshot" IS NULL) OR (("PassingScoreSnapshot" >= (0)::numeric) AND ("PassingScoreSnapshot" <= (10)::numeric)))` [name: 'CK_ExamAttempts_PassingScoreSnapshot_Range']
+    `(("Score" IS NULL) OR (("Score" >= (0)::numeric) AND ("Score" <= (10)::numeric)))` [name: 'CK_ExamAttempts_Score_Range']
+  }
+}
+
+Table public.ExamComments [note: 'Partial unique rating index UX_ExamComments_UserRating applies to top-level active ratings.'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  ExamId integer [not null]
+  IsDefault boolean
+  Name varchar(255)
+  ParentCommentId integer
+  Rating integer
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ExamComments', pk]
+    (ExamId) [name: 'IX_ExamComments_ExamId']
+    (ParentCommentId) [name: 'IX_ExamComments_ParentCommentId']
+    (UserId) [name: 'IX_ExamComments_UserId']
+    (UserId, ExamId) [name: 'UX_ExamComments_UserRating', unique, note: 'Filter: (("ParentCommentId" IS NULL) AND ("Rating" IS NOT NULL) AND ("Status" <> \'-1\'::integer))']
+  }
+}
+
+Table public.ExamEnrollments {
+  UserId varchar(36) [not null]
+  ExamId integer [not null]
+  EnrolledAt "timestamp with time zone" [not null]
+  PaymentOrderId integer
+  Status integer [not null]
+  indexes {
+    (UserId, ExamId) [name: 'PK_ExamEnrollments', pk]
+    (ExamId) [name: 'IX_ExamEnrollments_ExamId']
+    (PaymentOrderId) [name: 'IX_ExamEnrollments_PaymentOrderId']
+    (Status) [name: 'IX_ExamEnrollments_Status']
+  }
+}
+
+Table public.ExamQuestions {
+  ExamId integer [not null]
+  QuestionId integer [not null]
+  SortOrder integer [not null]
+  indexes {
+    (ExamId, QuestionId) [name: 'PK_ExamQuestions', pk]
+    (QuestionId) [name: 'IX_ExamQuestions_QuestionId']
+  }
+}
+
+Table public.Exams {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  Code varchar(50)
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  CreatorId varchar(36) [not null]
+  Description text
+  DurationMinutes integer [not null]
+  ExamCategoryId integer
+  IsDefault boolean
+  LessonId integer
+  Name varchar(255)
+  PassingScore numeric(18,2)
+  Price numeric(18,2) [not null]
+  PromotionPrice numeric(18,2)
+  QuestionsPerAttempt integer [not null, default: `10`]
+  ReviewNote text
+  ReviewedAt "timestamp with time zone"
+  ReviewedBy varchar(36)
+  SortOrder integer
+  Status integer [not null]
+  SubmittedAt "timestamp with time zone"
+  ThumbnailUrl varchar(500)
+  Title varchar(255) [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_Exams', pk]
+    (CourseId) [name: 'IX_Exams_CourseId']
+    (CreatorId) [name: 'IX_Exams_CreatorId']
+    (ExamCategoryId) [name: 'IX_Exams_ExamCategoryId']
+    (LessonId) [name: 'IX_Exams_LessonId', unique]
+    (Status) [name: 'IX_Exams_Status']
+  }
+  checks {
+    `(("PassingScore" IS NULL) OR (("PassingScore" >= (0)::numeric) AND ("PassingScore" <= (10)::numeric)))` [name: 'CK_Exams_PassingScore_Range']
+    `("QuestionsPerAttempt" > 0)` [name: 'CK_Exams_QuestionsPerAttempt_Positive']
+  }
+}
+
+Table public.InstructorRequests {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  Note text
+  RequestStatus integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_InstructorRequests', pk]
+    (UserId) [name: 'IX_InstructorRequests_UserId']
+  }
+}
+
+Table public.Lessons {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  Duration integer
+  IsDefault boolean
+  Name varchar(255)
+  Order integer [not null]
+  SectionId integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Type integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_Lessons', pk]
+    (SectionId) [name: 'IX_Lessons_SectionId']
+  }
+}
+
+Table public.NotificationOutbox [note: 'Logical references to recipient/entity/notification; migration creates TR_NotificationOutbox_Notify.'] {
+  Id bigint [not null, increment]
+  ActionUrl varchar(1000)
+  AttemptCount integer [not null]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  DeliveredAt "timestamp with time zone"
+  EntityId integer
+  EntityType varchar(50)
+  EventKey varchar(200) [not null]
+  LastError text
+  LeaseUntil "timestamp with time zone"
+  NextAttemptAt "timestamp with time zone" [not null]
+  NotificationId integer
+  RecipientUserId varchar(450) [not null]
+  SourceModule varchar(30) [not null]
+  TemplateData jsonb
+  Title varchar(500) [not null]
+  TypeCode varchar(100) [not null]
+  indexes {
+    (Id) [name: 'PK_NotificationOutbox', pk]
+    (EventKey) [name: 'IX_NotificationOutbox_EventKey', unique]
+    (SourceModule, NextAttemptAt, Id) [name: 'IX_NotificationOutbox_SourceModule_NextAttemptAt_Id', note: 'Filter: ("DeliveredAt" IS NULL)']
+  }
+}
+
+Table public.Notifications {
+  Id integer [not null, increment]
+  ActionUrl varchar(1000)
+  Code varchar(50)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  EntityId integer
+  EntityType varchar(50)
+  EventKey varchar(200)
+  IsDefault boolean
+  IsGlobal boolean [not null]
+  Name varchar(255)
+  NotificationTypeId integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  TemplateData jsonb
+  Title varchar(500) [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_Notifications', pk]
+    (CreatedAt) [name: 'IX_Notifications_CreatedAt']
+    (EntityType, EntityId) [name: 'IX_Notifications_EntityType_EntityId']
+    (EventKey) [name: 'IX_Notifications_EventKey', unique]
+    (NotificationTypeId) [name: 'IX_Notifications_NotificationTypeId']
+  }
+}
+
+Table public.PaymentOrderItems [note: 'ItemType + ItemId is a polymorphic product snapshot without direct product FK.'] {
+  PaymentOrderId integer [not null]
+  ItemType integer [not null]
+  ItemId integer [not null]
+  CreatorIdSnapshot varchar(36)
+  DiscountAmount numeric(18,2)
+  NetAmount numeric(18,2)
+  Title text [not null]
+  UnitPrice numeric(18,2)
+  indexes {
+    (PaymentOrderId, ItemType, ItemId) [name: 'PK_PaymentOrderItems', pk]
+  }
+}
+
+Table public.PaymentOrders {
+  Id integer [not null, increment]
+  AccountNumber varchar(50)
+  BankName varchar(50)
+  CancelledAt "timestamp with time zone"
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  DiscountAmount numeric(18,2) [not null]
+  ExpiredAt "timestamp with time zone"
+  IsDefault boolean
+  ItemsComplete boolean [not null, default: `false`]
+  Name varchar(255)
+  OrderStatus integer [not null]
+  PaidAt "timestamp with time zone"
+  QrUrl varchar(1000)
+  RequestFingerprint varchar(128)
+  RequestId uuid
+  SortOrder integer
+  Status integer [not null]
+  SubTotal numeric(18,2) [not null]
+  TotalAmount numeric(18,2) [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  VoucherCodeSnapshot varchar(100)
+  VoucherId integer
+  indexes {
+    (Id) [name: 'PK_PaymentOrders', pk]
+    (Code) [name: 'IX_PaymentOrders_Code', unique]
+    (OrderStatus) [name: 'IX_PaymentOrders_OrderStatus']
+    (UserId) [name: 'IX_PaymentOrders_UserId']
+    (UserId, RequestId) [name: 'IX_PaymentOrders_UserId_RequestId', unique, note: 'Filter: ("RequestId" IS NOT NULL)']
+    (VoucherId) [name: 'IX_PaymentOrders_VoucherId']
+  }
+}
+
+Table public.PaymentTransactions {
+  Id integer [not null, increment]
+  AccountNumber varchar(50)
+  Code varchar(50)
+  Content varchar(500)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  Gateway varchar(50)
+  GatewayTransactionId varchar(50) [not null]
+  IsDefault boolean
+  Name varchar(255)
+  PaymentCode varchar(100)
+  PaymentOrderId integer
+  ProcessStatus integer [not null]
+  ProcessedAt "timestamp with time zone"
+  RawPayload text
+  ReferenceCode varchar(100)
+  SortOrder integer
+  Status integer [not null]
+  SubAccount varchar(50)
+  TransactionDate "timestamp with time zone"
+  TransferAmount numeric(18,2) [not null]
+  TransferType varchar(10)
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_PaymentTransactions', pk]
+    (GatewayTransactionId) [name: 'IX_PaymentTransactions_GatewayTransactionId', unique]
+    (PaymentCode) [name: 'IX_PaymentTransactions_PaymentCode']
+    (PaymentOrderId) [name: 'IX_PaymentTransactions_PaymentOrderId']
+    (ProcessStatus) [name: 'IX_PaymentTransactions_ProcessStatus']
+  }
+}
+
+Table public.QuestionOptions {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsCorrect boolean [not null]
+  IsDefault boolean
+  Name varchar(255)
+  QuestionId integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_QuestionOptions', pk]
+    (QuestionId) [name: 'IX_QuestionOptions_QuestionId']
+  }
+}
+
+Table public.Questions {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  CreatorId varchar(36) [not null]
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_Questions', pk]
+    (CreatorId) [name: 'IX_Questions_CreatorId']
+    (Status) [name: 'IX_Questions_Status']
+  }
+}
+
+Table public.Resources {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  DocumentTypeId integer
+  IsDefault boolean
+  LessonId integer [not null]
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  Title varchar(255) [not null]
+  UpdatedAt "timestamp with time zone"
+  Url varchar(1000) [not null]
+  indexes {
+    (Id) [name: 'PK_Resources', pk]
+    (DocumentTypeId) [name: 'IX_Resources_DocumentTypeId']
+    (LessonId) [name: 'IX_Resources_LessonId', unique]
+  }
+}
+
+Table public.UserActionTokens {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  Email text [not null]
+  ExpiresAt "timestamp with time zone" [not null]
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  TokenHash text [not null]
+  Type smallint [not null]
+  UpdatedAt "timestamp with time zone"
+  UsedAt "timestamp with time zone"
+  UserId text [not null]
+  indexes {
+    (Id) [name: 'PK_UserActionTokens', pk]
+    (TokenHash) [name: 'IX_UserActionTokens_TokenHash', unique]
+    (UserId) [name: 'IX_UserActionTokens_UserId']
+  }
+}
+
+Table public.UserDocuments {
+  Id integer [not null, increment]
+  ApplicationTypeId integer [not null]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  FileName varchar(255)
+  FileUrl varchar(1000)
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UploadedAt "timestamp with time zone" [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_UserDocuments', pk]
+    (ApplicationTypeId) [name: 'IX_UserDocuments_ApplicationTypeId']
+    (Status) [name: 'IX_UserDocuments_Status']
+    (UserId) [name: 'IX_UserDocuments_UserId']
+  }
+}
+
+Table public.UserNotifications {
+  UserId varchar(36) [not null]
+  NotificationId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  IsRead boolean [not null]
+  ReadAt "timestamp with time zone"
+  indexes {
+    (UserId, NotificationId) [name: 'PK_UserNotifications', pk]
+    (IsRead) [name: 'IX_UserNotifications_IsRead']
+    (NotificationId) [name: 'IX_UserNotifications_NotificationId']
+  }
+}
+
+Table public.UserVouchers {
+  UserId varchar(36) [not null]
+  VoucherId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  ExpireAt "timestamp with time zone"
+  GrantCampaignId integer
+  GrantSource integer [not null, default: `0`]
+  GrantedBy varchar(36)
+  IsUsed boolean [not null]
+  PaymentOrderId integer
+  RevokeReason text
+  RevokedAt "timestamp with time zone"
+  RevokedBy varchar(36)
+  UsedAt "timestamp with time zone"
+  Id bigint [not null, increment]
+  indexes {
+    (Id) [name: 'PK_UserVouchers', pk]
+    (GrantCampaignId) [name: 'IX_UserVouchers_GrantCampaignId']
+    (PaymentOrderId) [name: 'IX_UserVouchers_PaymentOrderId']
+    (UserId, VoucherId) [name: 'IX_UserVouchers_UserId_VoucherId']
+    (VoucherId) [name: 'IX_UserVouchers_VoucherId']
+  }
+}
+
+Table public.Videos {
+  Id integer [not null, increment]
+  AudioBitrate integer
+  AudioCodec varchar(50)
+  Bitrate bigint
+  Code varchar(50)
+  Codec varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  Duration "double precision"
+  EncodedFileName varchar(500)
+  EncodedFileSize bigint
+  EncoderPreset varchar(50)
+  ErrorMessage varchar(2000)
+  FPS "double precision"
+  HasStorage boolean
+  Height integer
+  IsDefault boolean
+  JobId varchar(100)
+  LessonId integer [not null]
+  MaxRetries integer [not null]
+  Name varchar(255)
+  OriginalFileName varchar(500)
+  OriginalFileSize bigint
+  RetryCount integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  StoragePath varchar(1000)
+  TempFilePath varchar(1000)
+  Title varchar(255) [not null]
+  UpdatedAt "timestamp with time zone"
+  Url varchar(1000)
+  VideoStatus smallint [not null]
+  Width integer
+  YoutubeEmbed varchar(1000)
+  indexes {
+    (Id) [name: 'PK_Videos', pk]
+    (JobId) [name: 'IX_Videos_JobId']
+    (LessonId) [name: 'IX_Videos_LessonId', unique]
+    (VideoStatus) [name: 'IX_Videos_VideoStatus']
+  }
+}
+
+Table public.VoucherGrantCampaigns {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null, default: `0`]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UpdatedBy varchar(36)
+  VoucherId integer [not null]
+  indexes {
+    (Id) [name: 'PK_VoucherGrantCampaigns', pk]
+    (BusinessStatus) [name: 'IX_VoucherGrantCampaigns_BusinessStatus']
+    (Status) [name: 'IX_VoucherGrantCampaigns_Status']
+    (VoucherId) [name: 'IX_VoucherGrantCampaigns_VoucherId']
+  }
+}
+
+Table public.VoucherGrantRules {
+  Id integer [not null, increment]
+  CampaignId integer [not null]
+  RulesVersion integer [not null]
+  RegisteredFromUtc "timestamp with time zone"
+  RegisteredToUtc "timestamp with time zone"
+  EnrolledCourses_Min integer
+  EnrolledCourses_Max integer
+  EnrolledExams_Min integer
+  EnrolledExams_Max integer
+  EnrolledProductsTotal_Min integer
+  EnrolledProductsTotal_Max integer
+  CertificateCount_Min integer
+  CertificateCount_Max integer
+  PaidAmount_Min numeric(18,2)
+  PaidAmount_Max numeric(18,2)
+  PaidAmount_PaidFromUtc "timestamp with time zone"
+  PaidAmount_PaidToUtc "timestamp with time zone"
+  PublishedCourses_Min integer
+  PublishedCourses_Max integer
+  PublishedExams_Min integer
+  PublishedExams_Max integer
+  PublishedProductsTotal_Min integer
+  PublishedProductsTotal_Max integer
+  Code varchar(50)
+  Name varchar(255)
+  Description text
+  IsDefault boolean
+  SortOrder integer
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  UpdatedAt "timestamp with time zone"
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_VoucherGrantRules', pk]
+    (CampaignId) [name: 'IX_VoucherGrantRules_CampaignId', unique]
+    (Status) [name: 'IX_VoucherGrantRules_Status']
+  }
+}
+
+Table public.VoucherGrantCampaignResults {
+  CampaignId integer [not null]
+  UserId varchar(36) [not null]
+  Status integer [not null]
+  ReasonCode varchar(100)
+  ProcessedAt "timestamp with time zone"
+  GrantedAt "timestamp with time zone"
+  indexes {
+    (CampaignId, UserId) [name: 'PK_VoucherGrantCampaignResults', pk]
+    (Status, CampaignId) [name: 'IX_VoucherGrantCampaignResults_Status_CampaignId']
+    (UserId) [name: 'IX_VoucherGrantCampaignResults_UserId']
+  }
+}
+
+Table public.VoucherUsages {
+  Id bigint [not null, increment]
+  ConsumedAt "timestamp with time zone"
+  DiscountAmount numeric(18,2) [not null]
+  PaymentOrderId integer [not null]
+  ReleaseReason text
+  ReleasedAt "timestamp with time zone"
+  ReservedAt "timestamp with time zone" [not null]
+  ReservedUntil "timestamp with time zone"
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  VoucherId integer [not null]
+  UserVoucherId bigint
+  indexes {
+    (Id) [name: 'PK_VoucherUsages', pk]
+    (PaymentOrderId) [name: 'IX_VoucherUsages_PaymentOrderId', unique]
+    (UserVoucherId, Status) [name: 'IX_VoucherUsages_UserVoucherId_Status', unique, note: 'Filter: ("Status" = ANY (ARRAY[0, 1]))']
+    (VoucherId, Status, ReservedUntil) [name: 'IX_VoucherUsages_VoucherId_Status_ReservedUntil']
+  }
+  checks {
+    `("DiscountAmount" >= (0)::numeric)` [name: 'CK_VoucherUsages_DiscountAmount_NonNegative']
+  }
+}
+
+Table public.Vouchers [note: 'Migration-only expression unique index IX_Vouchers_Code_Normalized on UPPER(BTRIM(Code)).'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Condition text
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  CurrentUsage integer [not null]
+  Description text
+  DiscountType integer [not null]
+  DiscountValue numeric(18,2) [not null]
+  EndDate "timestamp with time zone"
+  IsDefault boolean
+  MaxDiscountAmount numeric(18,2)
+  MaxUsage integer [not null]
+  MinOrderAmount numeric(18,2) [not null, default: `0.0`]
+  Name varchar(255)
+  ReservedUsage integer [not null, default: `0`]
+  SortOrder integer
+  StartDate "timestamp with time zone"
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  VoucherTypeId integer [not null]
+  indexes {
+    (Id) [name: 'PK_Vouchers', pk]
+    (Code) [name: 'IX_Vouchers_Code', unique]
+    (`upper(btrim("Code"::text))`) [name: 'IX_Vouchers_Code_Normalized', unique, note: 'Filter: ("Code" IS NOT NULL)']
+    (Status) [name: 'IX_Vouchers_Status']
+    (VoucherTypeId) [name: 'IX_Vouchers_VoucherTypeId']
+  }
+  checks {
+    `(("MaxDiscountAmount" IS NULL) OR ("MaxDiscountAmount" > (0)::numeric))` [name: 'CK_Vouchers_MaxDiscountAmount_NonNegative']
+    `(("MaxUsage" = 0) OR (("CurrentUsage" + "ReservedUsage") <= "MaxUsage"))` [name: 'CK_Vouchers_MaxUsage_Quota']
+    `("MinOrderAmount" >= (0)::numeric)` [name: 'CK_Vouchers_MinOrderAmount_NonNegative']
+    `(("CurrentUsage" >= 0) AND ("ReservedUsage" >= 0))` [name: 'CK_Vouchers_UsageCounters_NonNegative']
+  }
+}
+
+Table ai.chat_history {
+  id uuid [not null]
+  answer text [not null]
+  answer_basis varchar(32) [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  question text [not null]
+  session_id uuid [not null]
+  sources jsonb [not null]
+  indexes {
+    (id) [name: 'PK_chat_history', pk]
+    (session_id, created_at, id) [name: 'ix_chat_history_session_created']
+  }
+  checks {
+    `(length(btrim(answer)) > 0)` [name: 'ck_chat_history_answer']
+    `((answer_basis)::text = ANY ((ARRAY['course'::character varying, 'model_knowledge'::character varying, 'course_and_model_knowledge'::character varying])::text[]))` [name: 'ck_chat_history_basis']
+    `(length(btrim(question)) > 0)` [name: 'ck_chat_history_question']
+  }
+}
+
+Table ai.chat_sessions {
+  id uuid [not null]
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  updated_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  user_id varchar(128) [not null]
+  indexes {
+    (id) [name: 'PK_chat_sessions', pk]
+    (user_id, course_id) [name: 'ux_chat_sessions_user_course', unique]
+  }
+  checks {
+    `(course_id > 0)` [name: 'ck_chat_sessions_course']
+    `(length(btrim((user_id)::text)) > 0)` [name: 'ck_chat_sessions_user']
+  }
+}
+
+Table ai.course_reindex_outbox {
+  id bigint [not null, increment]
+  attempt_count integer [not null]
+  completed_at "timestamp with time zone"
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  last_error varchar(2000)
+  lease_until "timestamp with time zone"
+  next_attempt_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  reason varchar(64) [not null]
+  remote_generation_id uuid
+  remote_job_id uuid
+  started_at "timestamp with time zone"
+  status varchar(16) [not null]
+  indexes {
+    (id) [name: 'PK_course_reindex_outbox', pk]
+    (status, next_attempt_at, id) [name: 'ix_course_reindex_outbox_claim']
+    (course_id, status) [name: 'ix_course_reindex_outbox_course_status']
+  }
+  checks {
+    `(attempt_count >= 0)` [name: 'ck_course_reindex_outbox_attempts']
+    `(course_id > 0)` [name: 'ck_course_reindex_outbox_course']
+    `((status)::text = ANY ((ARRAY['pending'::character varying, 'processing'::character varying, 'succeeded'::character varying, 'failed'::character varying])::text[]))` [name: 'ck_course_reindex_outbox_status']
+  }
+}
+
+Table public.CourseEssayAssignments {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  IsDefault boolean
+  Name varchar(255)
+  PublicUrl varchar(1000)
+  SortOrder integer
+  Status integer [not null]
+  StoragePath varchar(1000)
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CourseEssayAssignments', pk]
+    (CourseId) [name: 'IX_CourseEssayAssignments_CourseId', unique, note: 'Filter: ("Status" <> \'-1\'::integer)']
+  }
+  checks {
+    `(("PublicUrl" IS NULL) OR (length(TRIM(BOTH FROM "PublicUrl")) > 0))` [name: 'CK_CourseEssayAssignments_PublicUrl']
+  }
+}
+
+Table public.CourseEssaySubmissions {
+  Id integer [not null, increment]
+  AssignmentId integer [not null]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  GradedAt "timestamp with time zone"
+  GradedBy varchar(36)
+  GradingNote text
+  GradingResult integer [not null, default: `0`]
+  IsDefault boolean
+  Name varchar(255)
+  Score numeric(4,2)
+  SortOrder integer
+  Status integer [not null]
+  StudentId varchar(36) [not null]
+  SubmissionUrl varchar(1000) [not null]
+  UpdatedAt "timestamp with time zone"
+  indexes {
+    (Id) [name: 'PK_CourseEssaySubmissions', pk]
+    (AssignmentId, GradingResult) [name: 'IX_CourseEssaySubmissions_AssignmentId_GradingResult']
+    (AssignmentId, StudentId, CreatedAt) [name: 'IX_CourseEssaySubmissions_AssignmentId_StudentId_CreatedAt']
+    (GradedBy) [name: 'IX_CourseEssaySubmissions_GradedBy']
+    (StudentId) [name: 'IX_CourseEssaySubmissions_StudentId']
+    (AssignmentId, StudentId) [name: 'UX_CourseEssaySubmissions_OnePending', unique, note: 'Filter: (("GradingResult" = 0) AND ("Status" <> \'-1\'::integer))']
+  }
+  checks {
+    `((("GradingResult" = 0) AND ("GradedBy" IS NULL) AND ("GradedAt" IS NULL) AND ("Score" IS NULL)) OR (("GradingResult" = ANY (ARRAY[1, 2])) AND ("GradedBy" IS NOT NULL) AND ("GradedAt" IS NOT NULL)))` [name: 'CK_CourseEssaySubmissions_Grading']
+    `(("Score" IS NULL) OR (("Score" >= (0)::numeric) AND ("Score" <= (10)::numeric)))` [name: 'CK_CourseEssaySubmissions_Score']
+    `(length(TRIM(BOTH FROM "SubmissionUrl")) > 0)` [name: 'CK_CourseEssaySubmissions_Url']
+  }
+}
+
+Table public.Reports {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Content text [not null]
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  CreatedBy varchar(255)
+  Description text
+  ExamId integer
+  IsDefault boolean
+  Name varchar(255)
+  ReportStatus integer [not null, default: `0`]
+  ResolutionNote text
+  ResolvedAt "timestamp with time zone"
+  ResolvedBy varchar(36)
+  SortOrder integer
+  Status integer [not null]
+  UpdatedAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Reports', pk]
+    (CourseId, ReportStatus) [name: 'IX_Reports_CourseId_ReportStatus']
+    (ExamId, ReportStatus) [name: 'IX_Reports_ExamId_ReportStatus']
+    (ReportStatus, CreatedAt) [name: 'IX_Reports_ReportStatus_CreatedAt']
+    (ResolvedBy) [name: 'IX_Reports_ResolvedBy']
+    (UserId, CreatedAt) [name: 'IX_Reports_UserId_CreatedAt']
+  }
+  checks {
+    `((("CourseId" IS NOT NULL) AND ("ExamId" IS NULL)) OR (("CourseId" IS NULL) AND ("ExamId" IS NOT NULL)))` [name: 'CK_Reports_ExactlyOneTarget']
+  }
+}
+
+Table public.test_vector_backup [note: 'Existing auxiliary/backup table in the live database; not an EF application entity.'] {
+  id integer [not null, increment]
+  course_id integer
+  embedding vector(3)
+  indexes {
+    (id) [name: 'test_vector_backup_pkey', pk]
+  }
+}
+
+// Foreign keys from the live database
+Ref FK_chat_history_chat_sessions_session_id: ai.chat_history.session_id > ai.chat_sessions.id [delete: cascade, update: no action]
+Ref FK_chunks_course_indexes_course_id_generation_id: ai.chunks.(course_id, generation_id) > ai.course_indexes.(course_id, generation_id) [delete: cascade, update: no action]
+Ref FK_reindex_jobs_course_indexes_course_id_generation_id: ai.reindex_jobs.(course_id, generation_id) > ai.course_indexes.(course_id, generation_id) [delete: cascade, update: no action]
+Ref FK_Articles_Lessons_LessonId: public.Articles.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_AspNetRoleClaims_AspNetRoles_RoleId: public.AspNetRoleClaims.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserClaims_AspNetUsers_UserId: public.AspNetUserClaims.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserLogins_AspNetUsers_UserId: public.AspNetUserLogins.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetRoles_RoleId: public.AspNetUserRoles.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetUsers_UserId: public.AspNetUserRoles.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserTokens_AspNetUsers_UserId: public.AspNetUserTokens.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]
+Ref FK_AttemptAnswers_ExamAttempts_AttemptId: public.AttemptAnswers.AttemptId > public.ExamAttempts.Id [delete: cascade, update: no action]
+Ref FK_AttemptAnswers_QuestionOptions_SelectedOptionId: public.AttemptAnswers.SelectedOptionId > public.QuestionOptions.Id [delete: set null, update: no action]
+Ref FK_AttemptAnswers_Questions_QuestionId: public.AttemptAnswers.QuestionId > public.Questions.Id [delete: restrict, update: no action]
+Ref FK_AttemptQuestions_ExamAttempts_AttemptId: public.AttemptQuestions.AttemptId > public.ExamAttempts.Id [delete: cascade, update: no action]
+Ref FK_AttemptQuestions_Questions_QuestionId: public.AttemptQuestions.QuestionId > public.Questions.Id [delete: restrict, update: no action]
+Ref FK_CAT_ExamCategories_CAT_ExamCategories_ParentId: public.CAT_ExamCategories.ParentId > public.CAT_ExamCategories.Id [delete: no action, update: no action]
+Ref FK_CAT_Occupations_CAT_Occupations_ParentId: public.CAT_Occupations.ParentId > public.CAT_Occupations.Id [delete: no action, update: no action]
+Ref FK_CAT_Provinces_CAT_Provinces_ParentId: public.CAT_Provinces.ParentId > public.CAT_Provinces.Id [delete: no action, update: no action]
+Ref FK_CAT_SubjectCategories_CAT_SubjectCategories_ParentId: public.CAT_SubjectCategories.ParentId > public.CAT_SubjectCategories.Id [delete: no action, update: no action]
+Ref FK_Certificates_AspNetUsers_UserId: public.Certificates.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_Certificates_Courses_CourseId: public.Certificates.CourseId > public.Courses.Id [delete: set null, update: no action]
+Ref FK_Certificates_Exams_ExamId: public.Certificates.ExamId > public.Exams.Id [delete: set null, update: no action]
+Ref FK_ChatMessages_AspNetUsers_SenderId: public.ChatMessages.SenderId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ChatMessages_Conversations_ConversationId: public.ChatMessages.ConversationId > public.Conversations.Id [delete: cascade, update: no action]
+Ref FK_Conversations_AspNetUsers_InstructorId: public.Conversations.InstructorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Conversations_AspNetUsers_StudentId: public.Conversations.StudentId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Conversations_Courses_CourseId: public.Conversations.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_CourseComments_AspNetUsers_UserId: public.CourseComments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_CourseComments_CourseComments_ParentCommentId: public.CourseComments.ParentCommentId > public.CourseComments.Id [delete: restrict, update: no action]
+Ref FK_CourseComments_Courses_CourseId: public.CourseComments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_CourseEssayAssignments_Courses_CourseId: public.CourseEssayAssignments.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_AspNetUsers_GradedBy: public.CourseEssaySubmissions.GradedBy > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_AspNetUsers_StudentId: public.CourseEssaySubmissions.StudentId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_CourseEssayAssignments_AssignmentId: public.CourseEssaySubmissions.AssignmentId > public.CourseEssayAssignments.Id [delete: restrict, update: no action]
+Ref FK_CourseSections_Courses_CourseId: public.CourseSections.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_Courses_AspNetUsers_CreatorId: public.Courses.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Courses_CAT_CourseTypes_CourseTypeId: public.Courses.CourseTypeId > public.CAT_CourseTypes.Id [delete: restrict, update: no action]
+Ref FK_Courses_CAT_SubjectCategories_SubjectCategoryId: public.Courses.SubjectCategoryId > public.CAT_SubjectCategories.Id [delete: set null, update: no action]
+Ref FK_Courses_CAT_Tags_TagId: public.Courses.TagId > public.CAT_Tags.Id [delete: set null, update: no action]
+Ref FK_EnrollmentSectionCompletions_CourseSections_SectionId: public.EnrollmentSectionCompletions.SectionId > public.CourseSections.Id [delete: restrict, update: no action]
+Ref FK_EnrollmentSectionCompletions_Enrollments_UserId_CourseId: public.EnrollmentSectionCompletions.(UserId, CourseId) > public.Enrollments.(UserId, CourseId) [delete: cascade, update: no action]
+Ref FK_Enrollments_AspNetUsers_UserId: public.Enrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_Courses_CourseId: public.Enrollments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_Enrollments_PaymentOrders_PaymentOrderId: public.Enrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_ExamAttempts_AspNetUsers_UserId: public.ExamAttempts.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ExamAttempts_Exams_ExamId: public.ExamAttempts.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_ExamComments_AspNetUsers_UserId: public.ExamComments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_ExamComments_ExamComments_ParentCommentId: public.ExamComments.ParentCommentId > public.ExamComments.Id [delete: restrict, update: no action]
+Ref FK_ExamComments_Exams_ExamId: public.ExamComments.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_ExamEnrollments_AspNetUsers_UserId: public.ExamEnrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ExamEnrollments_Exams_ExamId: public.ExamEnrollments.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_ExamEnrollments_PaymentOrders_PaymentOrderId: public.ExamEnrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_ExamQuestions_Exams_ExamId: public.ExamQuestions.ExamId > public.Exams.Id [delete: restrict, update: no action]
+Ref FK_ExamQuestions_Questions_QuestionId: public.ExamQuestions.QuestionId > public.Questions.Id [delete: restrict, update: no action]
+Ref FK_Exams_AspNetUsers_CreatorId: public.Exams.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Exams_CAT_ExamCategories_ExamCategoryId: public.Exams.ExamCategoryId > public.CAT_ExamCategories.Id [delete: set null, update: no action]
+Ref FK_Exams_Courses_CourseId: public.Exams.CourseId > public.Courses.Id [delete: set null, update: no action]
+Ref FK_Exams_Lessons_LessonId: public.Exams.LessonId > public.Lessons.Id [delete: set null, update: no action]
+Ref FK_InstructorRequests_AspNetUsers_UserId: public.InstructorRequests.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_Lessons_CourseSections_SectionId: public.Lessons.SectionId > public.CourseSections.Id [delete: cascade, update: no action]
+Ref FK_Notifications_CAT_NotificationTypes_NotificationTypeId: public.Notifications.NotificationTypeId > public.CAT_NotificationTypes.Id [delete: restrict, update: no action]
+Ref FK_PaymentOrderItems_PaymentOrders_PaymentOrderId: public.PaymentOrderItems.PaymentOrderId > public.PaymentOrders.Id [delete: cascade, update: no action]
+Ref FK_PaymentOrders_AspNetUsers_UserId: public.PaymentOrders.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_PaymentOrders_Vouchers_VoucherId: public.PaymentOrders.VoucherId > public.Vouchers.Id [delete: set null, update: no action]
+Ref FK_PaymentTransactions_PaymentOrders_PaymentOrderId: public.PaymentTransactions.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_QuestionOptions_Questions_QuestionId: public.QuestionOptions.QuestionId > public.Questions.Id [delete: cascade, update: no action]
+Ref FK_Questions_AspNetUsers_CreatorId: public.Questions.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Reports_AspNetUsers_ResolvedBy: public.Reports.ResolvedBy > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Reports_AspNetUsers_UserId: public.Reports.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Reports_Courses_CourseId: public.Reports.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_Reports_Exams_ExamId: public.Reports.ExamId > public.Exams.Id [delete: restrict, update: no action]
+Ref FK_Resources_CAT_DocumentTypes_DocumentTypeId: public.Resources.DocumentTypeId > public.CAT_DocumentTypes.Id [delete: set null, update: no action]
+Ref FK_Resources_Lessons_LessonId: public.Resources.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_UserActionTokens_AspNetUsers_UserId: public.UserActionTokens.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_UserDocuments_AspNetUsers_UserId: public.UserDocuments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref "FK_UserDocuments_CAT_InstructorApplicationRequirements_Applica~": public.UserDocuments.ApplicationTypeId > public.CAT_InstructorApplicationRequirements.Id [delete: restrict, update: no action]
+Ref FK_UserNotifications_AspNetUsers_UserId: public.UserNotifications.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_UserNotifications_Notifications_NotificationId: public.UserNotifications.NotificationId > public.Notifications.Id [delete: cascade, update: no action]
+Ref FK_UserVouchers_AspNetUsers_UserId: public.UserVouchers.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_UserVouchers_PaymentOrders_PaymentOrderId: public.UserVouchers.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_UserVouchers_VoucherGrantCampaigns_GrantCampaignId: public.UserVouchers.GrantCampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_UserVouchers_Vouchers_VoucherId: public.UserVouchers.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_Videos_Lessons_LessonId: public.Videos.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_VoucherGrantCampaignResults_AspNetUsers_UserId: public.VoucherGrantCampaignResults.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaignResults_VoucherGrantCampaigns_CampaignId: public.VoucherGrantCampaignResults.CampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaigns_Vouchers_VoucherId: public.VoucherGrantCampaigns.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantRules_VoucherGrantCampaigns_CampaignId: public.VoucherGrantRules.CampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_PaymentOrders_PaymentOrderId: public.VoucherUsages.PaymentOrderId > public.PaymentOrders.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_UserVouchers_UserVoucherId: public.VoucherUsages.UserVoucherId > public.UserVouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_Vouchers_VoucherId: public.VoucherUsages.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_Vouchers_CAT_VoucherTypes_VoucherTypeId: public.Vouchers.VoucherTypeId > public.CAT_VoucherTypes.Id [delete: restrict, update: no action]
+
+// Visual groups
+
+TableGroup identity {
+  public.AspNetRoles
+  public.AspNetRoleClaims
+  public.AspNetUserClaims
+  public.AspNetUserLogins
+  public.AspNetUserRoles
+  public.AspNetUserTokens
+  public.AspNetUsers
+}
+
+TableGroup catalog {
+  public.CAT_CourseTypes
+  public.CAT_DocumentTypes
+  public.CAT_ExamCategories
+  public.CAT_GradingRules
+  public.CAT_InstructorApplicationRequirements
+  public.CAT_Levels
+  public.CAT_NotificationTypes
+  public.CAT_Occupations
+  public.CAT_Provinces
+  public.CAT_SubjectCategories
+  public.CAT_Tags
+  public.CAT_VoucherTypes
+}
+
+TableGroup course_exam {
+  public.Courses
+  public.CourseSections
+  public.Lessons
+  public.Videos
+  public.Resources
+  public.Articles
+  public.Exams
+  public.Questions
+  public.QuestionOptions
+  public.ExamQuestions
+  public.ExamAttempts
+  public.AttemptQuestions
+  public.AttemptAnswers
+  public.Enrollments
+  public.ExamEnrollments
+  public.EnrollmentSectionCompletions
+  public.Certificates
+  public.CourseComments
+  public.ExamComments
+  public.CourseEssayAssignments
+  public.CourseEssaySubmissions
+  public.Reports
+}
+
+TableGroup payment_voucher {
+  public.PaymentOrders
+  public.PaymentOrderItems
+  public.PaymentTransactions
+  public.Vouchers
+  public.UserVouchers
+  public.VoucherGrantCampaigns
+  public.VoucherGrantRules
+  public.VoucherGrantCampaignResults
+  public.VoucherUsages
+}
+
+TableGroup notification_chat {
+  public.Notifications
+  public.UserNotifications
+  public.NotificationOutbox
+  public.Conversations
+  public.ChatMessages
+}
+
+TableGroup auth_custom {
+  public.UserActionTokens
+  public.UserDocuments
+  public.InstructorRequests
+}
+
+TableGroup ai_rag {
+  ai.course_indexes
+  ai.chunks
+  ai.reindex_jobs
+  ai.chat_sessions
+  ai.chat_history
+  ai.course_reindex_outbox
+}
+
+TableGroup auxiliary {
+  public.test_vector_backup
+}
