@@ -58,3 +58,7 @@ Tất cả các file `desc.md` phải được trình bày dưới dạng BẢNG
 | **8. Hậu điều kiện**        | 1. [Kết quả 1]<br>2. [Kết quả 2]                                                             |
 
 _(Agent phải bám sát cấu trúc bảng này để đảm bảo tính đồng nhất cho toàn bộ tài liệu dự án Edumy)._
+
+## Theo dõi use case
+
+[Bảng audit và trạng thái hoàn thiện](USE_CASE_AUDIT.md).

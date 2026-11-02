@@ -1,9 +1,12 @@
 <mxfile host="65bd71144e">
     <diagram id="edumy_sys_uc" name="Edumy System Use Case">
-        <mxGraphModel dx="1980" dy="983" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="2622" dy="1052" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
+                <mxCell id="V9NRLmtuVynLlc-LxsR0-19" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+                    <mxGeometry height="880" width="1140" x="40" y="130" as="geometry"/>
+                </mxCell>
                 <mxCell id="a_std" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Học viên" vertex="1">
                     <mxGeometry height="80" width="40" x="50" y="300" as="geometry"/>
                 </mxCell>
@@ -172,7 +175,7 @@
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="11" parent="1" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Xem báo cáo doanh thu" vertex="1">
-                    <mxGeometry height="60" width="150" x="1000" y="530" as="geometry"/>
+                    <mxGeometry height="60" width="150" x="979" y="450" as="geometry"/>
                 </mxCell>
                 <mxCell id="17" edge="1" parent="1" source="a_adm" style="endArrow=none;html=1;" target="11" value="">
                     <mxGeometry height="50" relative="1" width="50" as="geometry">
