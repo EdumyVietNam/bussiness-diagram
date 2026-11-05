@@ -1,5 +1,12 @@
 # Các cụm database Edumy
 
+
+## Sơ đồ tổng hợp tinh gọn
+
+Mở [Edumy_Database_Simplified.dbml](Edumy_Database_Simplified.dbml) để xem toàn hệ thống: **65 bảng, 653 field, 94 FK**, chia thành **13 TableGroup**. Mỗi bảng chỉ xuất hiện một lần và lấy field từ bảng chính của từng cụm, không lấy bản tham chiếu rút gọn. Bảng backup `test_vector_backup` được giữ trong nhóm Auxiliary của sơ đồ tổng hợp; không tạo lại thư mục cụm đã bỏ.
+
+Các FK được vẽ trực tiếp; note SQL dài được rút gọn thành tên ràng buộc và dẫn về DBML gốc. PK, unique thông thường và kiểu dữ liệu còn giữ nguyên. File phục vụ đọc thiết kế, không dùng để triển khai database. Chạy `python3 scripts/build_simplified_overview.py` để tái tạo từ các cụm hiện tại.
+
 Nguồn duy nhất: `Edumy_Database.dbml`. SHA256: `8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed`.
 
 Sơ đồ giản lược để đọc thiết kế; không dùng làm schema triển khai. Mỗi cụm có bảng nghiệp vụ chính và bảng tham chiếu gọn. Các FK có đủ bảng/cột được vẽ bằng Ref; phần còn lại ghi Note. Không suy diễn FK từ tên cột. PK và unique được ưu tiên bảo toàn; partial/expression unique và check được ghi bằng Note. Index hiệu năng được ẩn.

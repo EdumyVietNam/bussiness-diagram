@@ -1,0 +1,1278 @@
+// Edumy - simplified full database overview.
+// Reading diagram only; not a complete schema for database deployment.
+// Source: Edumy_Database.dbml; SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Each table appears once. TableGroups organize the 13 functional clusters.
+// All physical source FKs are preserved. Logical links are not fabricated.
+// Performance indexes and verbose SQL checks are omitted; see source for full constraints.
+Project EdumySimplifiedOverview {
+  database_type: 'PostgreSQL'
+  Note: '65 tables grouped by function, with simplified fields. Based on the original DBML snapshot; not live database metadata.'
+}
+
+// IdentityAccess
+
+Table public.AspNetUsers {
+  Id text [not null]
+  Address text
+  AvatarUrl text
+  CreatedAt "timestamp with time zone" [not null]
+  DateOfBirth "timestamp with time zone"
+  Description text
+  Email varchar(256)
+  EmailConfirmed boolean [not null]
+  FullName text [not null]
+  Gender smallint
+  GoogleId text
+  LastLoginAt "timestamp with time zone"
+  LevelId integer
+  LockoutEnabled boolean [not null]
+  LockoutEnd "timestamp with time zone"
+  NormalizedUserName varchar(256)
+  OccupationId integer
+  PhoneNumber text
+  PhoneNumberConfirmed boolean [not null]
+  ProvinceId integer
+  Status integer [not null]
+  TwoFactorEnabled boolean [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+    (GoogleId) [name: 'IX_AspNetUsers_GoogleId', unique]
+    (NormalizedUserName) [name: 'UserNameIndex', unique]
+  }
+}
+
+Table public.AspNetRoles {
+  Id text [not null]
+  Name varchar(256)
+  NormalizedName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetRoles', pk]
+    (NormalizedName) [name: 'RoleNameIndex', unique]
+  }
+}
+
+Table public.AspNetRoleClaims {
+  Id integer [not null, increment]
+  RoleId text [not null]
+  ClaimType text
+  ClaimValue text
+  indexes {
+    (Id) [name: 'PK_AspNetRoleClaims', pk]
+  }
+}
+
+Table public.AspNetUserClaims {
+  Id integer [not null, increment]
+  UserId text [not null]
+  ClaimType text
+  ClaimValue text
+  indexes {
+    (Id) [name: 'PK_AspNetUserClaims', pk]
+  }
+}
+
+Table public.AspNetUserLogins {
+  LoginProvider text [not null]
+  ProviderKey text [not null]
+  ProviderDisplayName text
+  UserId text [not null]
+  indexes {
+    (LoginProvider, ProviderKey) [name: 'PK_AspNetUserLogins', pk]
+  }
+}
+
+Table public.AspNetUserRoles {
+  UserId text [not null]
+  RoleId text [not null]
+  indexes {
+    (UserId, RoleId) [name: 'PK_AspNetUserRoles', pk]
+  }
+}
+
+Table public.AspNetUserTokens {
+  UserId text [not null]
+  LoginProvider text [not null]
+  Name text [not null]
+  Value text
+  indexes {
+    (UserId, LoginProvider, Name) [name: 'PK_AspNetUserTokens', pk]
+  }
+}
+
+Table public.UserActionTokens {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Email text [not null]
+  ExpiresAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  TokenHash text [not null]
+  Type smallint [not null]
+  UsedAt "timestamp with time zone"
+  UserId text [not null]
+  indexes {
+    (Id) [name: 'PK_UserActionTokens', pk]
+    (TokenHash) [name: 'IX_UserActionTokens_TokenHash', unique]
+  }
+}
+
+
+// ProfileInstructor
+
+Table public.InstructorRequests {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Note text
+  RequestStatus integer [not null]
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_InstructorRequests', pk]
+  }
+}
+
+Table public.UserDocuments {
+  Id integer [not null, increment]
+  ApplicationTypeId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  FileName varchar(255)
+  FileUrl varchar(1000)
+  Status integer [not null]
+  UploadedAt "timestamp with time zone" [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_UserDocuments', pk]
+  }
+}
+
+Table public.CAT_InstructorApplicationRequirements {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_InstructorApplicationRequirements', pk]
+    (Code) [name: 'IX_CAT_InstructorApplicationRequirements_Code', unique]
+  }
+}
+
+Table public.CAT_Levels {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Levels', pk]
+    (Code) [name: 'IX_CAT_Levels_Code', unique]
+  }
+}
+
+Table public.CAT_Occupations {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Occupations', pk]
+    (Code) [name: 'IX_CAT_Occupations_Code', unique]
+  }
+}
+
+Table public.CAT_Provinces {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Provinces', pk]
+    (Code) [name: 'IX_CAT_Provinces_Code', unique]
+  }
+}
+
+
+// CourseContent
+
+Table public.Courses {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CourseTypeId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatorId varchar(36) [not null]
+  Description text
+  HasCertificate boolean [not null, default: `false`]
+  Price numeric(18,2) [not null]
+  PromotionPrice numeric
+  ReviewNote varchar(2000)
+  ReviewedAt "timestamp with time zone"
+  ReviewedBy varchar(36)
+  Status integer [not null]
+  SubjectCategoryId integer
+  SubmittedAt "timestamp with time zone"
+  TagId integer
+  ThumbnailUrl varchar(500)
+  Title varchar(255) [not null]
+  HasEssay boolean [default: `false`]
+  indexes {
+    (Id) [name: 'PK_Courses', pk]
+  }
+}
+
+Table public.CourseSections {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CompletedLessons integer [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  IsRequired boolean [not null]
+  Order integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  TotalLessons integer [not null]
+  indexes {
+    (Id) [name: 'PK_CourseSections', pk]
+  }
+}
+
+Table public.Lessons {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Duration integer
+  Order integer [not null]
+  SectionId integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Type integer [not null]
+  indexes {
+    (Id) [name: 'PK_Lessons', pk]
+  }
+}
+
+Table public.Articles {
+  Id integer [not null, increment]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  LessonId integer [not null]
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_Articles', pk]
+    (LessonId) [name: 'IX_Articles_LessonId', unique]
+  }
+}
+
+Table public.Videos {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Duration "double precision"
+  LessonId integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Url varchar(1000)
+  VideoStatus smallint [not null]
+  YoutubeEmbed varchar(1000)
+  indexes {
+    (Id) [name: 'PK_Videos', pk]
+    (LessonId) [name: 'IX_Videos_LessonId', unique]
+  }
+}
+
+Table public.Resources {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  DocumentTypeId integer
+  LessonId integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Url varchar(1000) [not null]
+  indexes {
+    (Id) [name: 'PK_Resources', pk]
+    (LessonId) [name: 'IX_Resources_LessonId', unique]
+  }
+}
+
+Table public.CAT_CourseTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_CourseTypes', pk]
+    (Code) [name: 'IX_CAT_CourseTypes_Code', unique]
+  }
+}
+
+Table public.CAT_SubjectCategories {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_SubjectCategories', pk]
+    (Code) [name: 'IX_CAT_SubjectCategories_Code', unique]
+  }
+}
+
+Table public.CAT_Tags {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Tags', pk]
+    (Code) [name: 'IX_CAT_Tags_Code', unique]
+  }
+}
+
+Table public.CAT_DocumentTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_DocumentTypes', pk]
+    (Code) [name: 'IX_CAT_DocumentTypes_Code', unique]
+  }
+}
+
+
+// EnrollmentProgress
+
+Table public.Enrollments {
+  UserId varchar(36) [not null]
+  CourseId integer [not null]
+  CompletedAt "timestamp with time zone"
+  EnrolledAt "timestamp with time zone" [not null]
+  IsCertificateIssued boolean [not null]
+  PaymentOrderId integer
+  Progress numeric(5,2) [not null]
+  Status integer [not null]
+  indexes {
+    (UserId, CourseId) [name: 'PK_Enrollments', pk]
+  }
+}
+
+Table public.ExamEnrollments {
+  UserId varchar(36) [not null]
+  ExamId integer [not null]
+  EnrolledAt "timestamp with time zone" [not null]
+  PaymentOrderId integer
+  Status integer [not null]
+  indexes {
+    (UserId, ExamId) [name: 'PK_ExamEnrollments', pk]
+  }
+}
+
+Table public.EnrollmentSectionCompletions [note: 'Composite shadow FK to Enrollments via (UserId, CourseId).'] {
+  Id integer [not null, increment]
+  CompletedAt "timestamp with time zone" [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  SectionId integer [not null]
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_EnrollmentSectionCompletions', pk]
+    (UserId, CourseId, SectionId) [name: 'IX_EnrollmentSectionCompletions_UserId_CourseId_SectionId', unique]
+  }
+}
+
+
+// Examination
+
+Table public.Exams {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  CreatorId varchar(36) [not null]
+  Description text
+  DurationMinutes integer [not null]
+  ExamCategoryId integer
+  LessonId integer
+  PassingScore numeric(18,2)
+  Price numeric(18,2) [not null]
+  PromotionPrice numeric(18,2)
+  QuestionsPerAttempt integer [not null, default: `10`]
+  ReviewNote text
+  ReviewedAt "timestamp with time zone"
+  ReviewedBy varchar(36)
+  Status integer [not null]
+  SubmittedAt "timestamp with time zone"
+  ThumbnailUrl varchar(500)
+  Title varchar(255) [not null]
+  indexes {
+    (Id) [name: 'PK_Exams', pk]
+    (LessonId) [name: 'IX_Exams_LessonId', unique]
+  }
+  Note: "Check constraint: CK_Exams_PassingScore_Range (see original DBML for full definition).\nCheck constraint: CK_Exams_QuestionsPerAttempt_Positive (see original DBML for full definition)."
+}
+
+Table public.Questions {
+  Id integer [not null, increment]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatorId varchar(36) [not null]
+  Description text
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_Questions', pk]
+  }
+}
+
+Table public.QuestionOptions {
+  Id integer [not null, increment]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  IsCorrect boolean [not null]
+  QuestionId integer [not null]
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_QuestionOptions', pk]
+  }
+}
+
+Table public.ExamQuestions {
+  ExamId integer [not null]
+  QuestionId integer [not null]
+  SortOrder integer [not null]
+  indexes {
+    (ExamId, QuestionId) [name: 'PK_ExamQuestions', pk]
+  }
+}
+
+Table public.ExamAttempts {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  ExamId integer [not null]
+  PassingScoreSnapshot numeric(18,2)
+  Score numeric(18,2)
+  StartAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  SubmitAt "timestamp with time zone"
+  TotalCorrect integer
+  TotalQuestions integer
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ExamAttempts', pk]
+  }
+  Note: "Check constraint: CK_ExamAttempts_PassingScoreSnapshot_Range (see original DBML for full definition).\nCheck constraint: CK_ExamAttempts_Score_Range (see original DBML for full definition)."
+}
+
+Table public.AttemptQuestions {
+  Id integer [not null, increment]
+  AttemptId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Order integer [not null]
+  QuestionId integer [not null]
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_AttemptQuestions', pk]
+    (AttemptId, QuestionId) [name: 'IX_AttemptQuestions_AttemptId_QuestionId', unique]
+  }
+}
+
+Table public.AttemptAnswers {
+  Id integer [not null, increment]
+  AttemptId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  QuestionId integer [not null]
+  SelectedOptionId integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_AttemptAnswers', pk]
+    (AttemptId, QuestionId) [name: 'IX_AttemptAnswers_AttemptId_QuestionId', unique]
+  }
+}
+
+Table public.CAT_ExamCategories {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_ExamCategories', pk]
+    (Code) [name: 'IX_CAT_ExamCategories_Code', unique]
+  }
+}
+
+Table public.CAT_GradingRules {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  IsPass boolean [not null]
+  MaxScore numeric(5,2) [not null]
+  MinScore numeric(5,2) [not null]
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_GradingRules', pk]
+    (Code) [name: 'IX_CAT_GradingRules_Code', unique]
+  }
+  Note: "Check constraint: CK_CAT_GradingRules_ScoreRange (see original DBML for full definition)."
+}
+
+
+// EssayCertification
+
+Table public.CourseEssayAssignments {
+  Id integer [not null, increment]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  PublicUrl varchar(1000)
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CourseEssayAssignments', pk]
+  }
+  Note: "Conditional/expression uniqueness: IX_CourseEssayAssignments_CourseId (see original DBML for full definition).\nCheck constraint: CK_CourseEssayAssignments_PublicUrl (see original DBML for full definition)."
+}
+
+Table public.CourseEssaySubmissions {
+  Id integer [not null, increment]
+  AssignmentId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  GradedAt "timestamp with time zone"
+  GradedBy varchar(36)
+  GradingNote text
+  GradingResult integer [not null, default: `0`]
+  Score numeric(4,2)
+  Status integer [not null]
+  StudentId varchar(36) [not null]
+  SubmissionUrl varchar(1000) [not null]
+  indexes {
+    (Id) [name: 'PK_CourseEssaySubmissions', pk]
+  }
+  Note: "Conditional/expression uniqueness: UX_CourseEssaySubmissions_OnePending (see original DBML for full definition).\nCheck constraint: CK_CourseEssaySubmissions_Grading (see original DBML for full definition).\nCheck constraint: CK_CourseEssaySubmissions_Score (see original DBML for full definition).\nCheck constraint: CK_CourseEssaySubmissions_Url (see original DBML for full definition)."
+}
+
+Table public.Certificates {
+  Id integer [not null, increment]
+  CertificateNumber varchar(50)
+  CertificateUrl varchar(1000)
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  ExamId integer
+  IssuedAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Certificates', pk]
+    (CertificateNumber) [name: 'IX_Certificates_CertificateNumber', unique]
+  }
+}
+
+
+// Payment
+
+Table public.PaymentOrders {
+  Id integer [not null, increment]
+  AccountNumber varchar(50)
+  BankName varchar(50)
+  CancelledAt "timestamp with time zone"
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  DiscountAmount numeric(18,2) [not null]
+  ExpiredAt "timestamp with time zone"
+  ItemsComplete boolean [not null, default: `false`]
+  OrderStatus integer [not null]
+  PaidAt "timestamp with time zone"
+  RequestFingerprint varchar(128)
+  RequestId uuid
+  Status integer [not null]
+  SubTotal numeric(18,2) [not null]
+  TotalAmount numeric(18,2) [not null]
+  UserId varchar(36) [not null]
+  VoucherCodeSnapshot varchar(100)
+  VoucherId integer
+  indexes {
+    (Id) [name: 'PK_PaymentOrders', pk]
+    (Code) [name: 'IX_PaymentOrders_Code', unique]
+  }
+  Note: "Conditional/expression uniqueness: IX_PaymentOrders_UserId_RequestId (see original DBML for full definition)."
+}
+
+Table public.PaymentOrderItems [note: 'ItemType + ItemId is a polymorphic product snapshot without direct product FK.'] {
+  PaymentOrderId integer [not null]
+  ItemType integer [not null]
+  ItemId integer [not null]
+  CreatorIdSnapshot varchar(36)
+  DiscountAmount numeric(18,2)
+  NetAmount numeric(18,2)
+  Title text [not null]
+  UnitPrice numeric(18,2)
+  indexes {
+    (PaymentOrderId, ItemType, ItemId) [name: 'PK_PaymentOrderItems', pk]
+  }
+}
+
+Table public.PaymentTransactions {
+  Id integer [not null, increment]
+  AccountNumber varchar(50)
+  Content varchar(500)
+  CreatedAt "timestamp with time zone" [not null]
+  Gateway varchar(50)
+  GatewayTransactionId varchar(50) [not null]
+  PaymentCode varchar(100)
+  PaymentOrderId integer
+  ProcessStatus integer [not null]
+  ProcessedAt "timestamp with time zone"
+  ReferenceCode varchar(100)
+  Status integer [not null]
+  SubAccount varchar(50)
+  TransactionDate "timestamp with time zone"
+  TransferAmount numeric(18,2) [not null]
+  TransferType varchar(10)
+  indexes {
+    (Id) [name: 'PK_PaymentTransactions', pk]
+    (GatewayTransactionId) [name: 'IX_PaymentTransactions_GatewayTransactionId', unique]
+  }
+}
+
+
+// VoucherPromotion
+
+Table public.Vouchers [note: 'Migration-only expression unique index IX_Vouchers_Code_Normalized on UPPER(BTRIM(Code)).'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Condition text
+  CreatedAt "timestamp with time zone" [not null]
+  CurrentUsage integer [not null]
+  Description text
+  DiscountType integer [not null]
+  DiscountValue numeric(18,2) [not null]
+  EndDate "timestamp with time zone"
+  MaxDiscountAmount numeric(18,2)
+  MaxUsage integer [not null]
+  MinOrderAmount numeric(18,2) [not null, default: `0.0`]
+  Name varchar(255)
+  ReservedUsage integer [not null, default: `0`]
+  StartDate "timestamp with time zone"
+  Status integer [not null]
+  VoucherTypeId integer [not null]
+  indexes {
+    (Id) [name: 'PK_Vouchers', pk]
+    (Code) [name: 'IX_Vouchers_Code', unique]
+  }
+  Note: "Conditional/expression uniqueness: IX_Vouchers_Code_Normalized (see original DBML for full definition).\nCheck constraint: CK_Vouchers_MaxDiscountAmount_NonNegative (see original DBML for full definition).\nCheck constraint: CK_Vouchers_MaxUsage_Quota (see original DBML for full definition).\nCheck constraint: CK_Vouchers_MinOrderAmount_NonNegative (see original DBML for full definition).\nCheck constraint: CK_Vouchers_UsageCounters_NonNegative (see original DBML for full definition)."
+}
+
+Table public.UserVouchers {
+  UserId varchar(36) [not null]
+  VoucherId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  ExpireAt "timestamp with time zone"
+  GrantCampaignId integer
+  GrantSource integer [not null, default: `0`]
+  GrantedBy varchar(36)
+  IsUsed boolean [not null]
+  PaymentOrderId integer
+  RevokeReason text
+  RevokedAt "timestamp with time zone"
+  RevokedBy varchar(36)
+  UsedAt "timestamp with time zone"
+  Id bigint [not null, increment]
+  indexes {
+    (Id) [name: 'PK_UserVouchers', pk]
+  }
+}
+
+Table public.VoucherGrantCampaigns {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null, default: `0`]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  Status integer [not null]
+  VoucherId integer [not null]
+  indexes {
+    (Id) [name: 'PK_VoucherGrantCampaigns', pk]
+  }
+}
+
+Table public.VoucherGrantRules {
+  Id integer [not null, increment]
+  CampaignId integer [not null]
+  RulesVersion integer [not null]
+  RegisteredFromUtc "timestamp with time zone"
+  RegisteredToUtc "timestamp with time zone"
+  EnrolledCourses_Min integer
+  EnrolledCourses_Max integer
+  EnrolledExams_Min integer
+  EnrolledExams_Max integer
+  EnrolledProductsTotal_Min integer
+  EnrolledProductsTotal_Max integer
+  CertificateCount_Min integer
+  CertificateCount_Max integer
+  PaidAmount_Min numeric(18,2)
+  PaidAmount_Max numeric(18,2)
+  PaidAmount_PaidFromUtc "timestamp with time zone"
+  PaidAmount_PaidToUtc "timestamp with time zone"
+  PublishedCourses_Min integer
+  PublishedCourses_Max integer
+  PublishedExams_Min integer
+  PublishedExams_Max integer
+  PublishedProductsTotal_Min integer
+  PublishedProductsTotal_Max integer
+  Description text
+  CreatedAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_VoucherGrantRules', pk]
+    (CampaignId) [name: 'IX_VoucherGrantRules_CampaignId', unique]
+  }
+}
+
+Table public.VoucherGrantCampaignResults {
+  CampaignId integer [not null]
+  UserId varchar(36) [not null]
+  Status integer [not null]
+  ReasonCode varchar(100)
+  ProcessedAt "timestamp with time zone"
+  GrantedAt "timestamp with time zone"
+  indexes {
+    (CampaignId, UserId) [name: 'PK_VoucherGrantCampaignResults', pk]
+  }
+}
+
+Table public.VoucherUsages {
+  Id bigint [not null, increment]
+  ConsumedAt "timestamp with time zone"
+  DiscountAmount numeric(18,2) [not null]
+  PaymentOrderId integer [not null]
+  ReleaseReason text
+  ReleasedAt "timestamp with time zone"
+  ReservedAt "timestamp with time zone" [not null]
+  ReservedUntil "timestamp with time zone"
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  VoucherId integer [not null]
+  UserVoucherId bigint
+  indexes {
+    (Id) [name: 'PK_VoucherUsages', pk]
+    (PaymentOrderId) [name: 'IX_VoucherUsages_PaymentOrderId', unique]
+  }
+  Note: "Conditional/expression uniqueness: IX_VoucherUsages_UserVoucherId_Status (see original DBML for full definition).\nCheck constraint: CK_VoucherUsages_DiscountAmount_NonNegative (see original DBML for full definition)."
+}
+
+Table public.CAT_VoucherTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_VoucherTypes', pk]
+    (Code) [name: 'IX_CAT_VoucherTypes_Code', unique]
+  }
+}
+
+
+// FeedbackReporting
+
+Table public.CourseComments [note: 'Partial unique rating index UX_CourseComments_UserRating applies to top-level active ratings.'] {
+  Id integer [not null, increment]
+  Content text [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  ParentCommentId integer
+  Rating integer
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_CourseComments', pk]
+  }
+  Note: "Conditional/expression uniqueness: UX_CourseComments_UserRating (see original DBML for full definition)."
+}
+
+Table public.ExamComments [note: 'Partial unique rating index UX_ExamComments_UserRating applies to top-level active ratings.'] {
+  Id integer [not null, increment]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  ExamId integer [not null]
+  ParentCommentId integer
+  Rating integer
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ExamComments', pk]
+  }
+  Note: "Conditional/expression uniqueness: UX_ExamComments_UserRating (see original DBML for full definition)."
+}
+
+Table public.Reports {
+  Id integer [not null, increment]
+  Content text [not null]
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  ExamId integer
+  ReportStatus integer [not null, default: `0`]
+  ResolutionNote text
+  ResolvedAt "timestamp with time zone"
+  ResolvedBy varchar(36)
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Reports', pk]
+  }
+  Note: "Check constraint: CK_Reports_ExactlyOneTarget (see original DBML for full definition)."
+}
+
+
+// CourseChat
+
+Table public.Conversations {
+  Id integer [not null, increment]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  InstructorId varchar(36) [not null]
+  LastMessageAt "timestamp with time zone"
+  Status integer [not null]
+  StudentId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Conversations', pk]
+    (StudentId, InstructorId, CourseId) [name: 'IX_Conversations_StudentId_InstructorId_CourseId', unique]
+  }
+}
+
+Table public.ChatMessages {
+  Id bigint [not null, increment]
+  ClientMessageId uuid [not null]
+  Content text [not null]
+  ConversationId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  IsRead boolean [not null]
+  ReadAt "timestamp with time zone"
+  SenderId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ChatMessages', pk]
+    (SenderId, ClientMessageId) [name: 'IX_ChatMessages_SenderId_ClientMessageId', unique]
+  }
+}
+
+
+// Notification
+
+Table public.Notifications {
+  Id integer [not null, increment]
+  ActionUrl varchar(1000)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  EntityId integer
+  EntityType varchar(50)
+  EventKey varchar(200)
+  IsGlobal boolean [not null]
+  NotificationTypeId integer [not null]
+  Status integer [not null]
+  TemplateData jsonb
+  Title varchar(500) [not null]
+  indexes {
+    (Id) [name: 'PK_Notifications', pk]
+    (EventKey) [name: 'IX_Notifications_EventKey', unique]
+  }
+}
+
+Table public.UserNotifications {
+  UserId varchar(36) [not null]
+  NotificationId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  IsRead boolean [not null]
+  ReadAt "timestamp with time zone"
+  indexes {
+    (UserId, NotificationId) [name: 'PK_UserNotifications', pk]
+  }
+}
+
+Table public.NotificationOutbox [note: 'Logical references to recipient/entity/notification; migration creates TR_NotificationOutbox_Notify.'] {
+  Id bigint [not null, increment]
+  ActionUrl varchar(1000)
+  AttemptCount integer [not null]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  DeliveredAt "timestamp with time zone"
+  EntityId integer
+  EntityType varchar(50)
+  EventKey varchar(200) [not null]
+  NextAttemptAt "timestamp with time zone" [not null]
+  NotificationId integer
+  RecipientUserId varchar(450) [not null]
+  SourceModule varchar(30) [not null]
+  TemplateData jsonb
+  Title varchar(500) [not null]
+  TypeCode varchar(100) [not null]
+  indexes {
+    (Id) [name: 'PK_NotificationOutbox', pk]
+    (EventKey) [name: 'IX_NotificationOutbox_EventKey', unique]
+  }
+}
+
+Table public.CAT_NotificationTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Color varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Icon varchar(50)
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_NotificationTypes', pk]
+    (Code) [name: 'IX_CAT_NotificationTypes_Code', unique]
+  }
+}
+
+
+// AiAssistant
+
+Table ai.chunks [note: 'PostgreSQL-only AI table; embedding is vector(768).'] {
+  id uuid [not null]
+  chunk_index integer [not null]
+  content text [not null]
+  course_id integer [not null]
+  course_title text [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  embedding vector(768) [not null]
+  generation_id uuid [not null]
+  heading text
+  lesson_id integer
+  lesson_title text
+  section_id integer
+  section_title text
+  source_id integer [not null]
+  source_type varchar(24) [not null]
+  indexes {
+    (id) [name: 'PK_chunks', pk]
+    (course_id, generation_id, source_type, source_id, chunk_index) [name: 'ux_chunks_source_position', unique]
+  }
+  Note: "Check constraint: ck_chunks_content (see original DBML for full definition).\nCheck constraint: ck_chunks_source (see original DBML for full definition).\nCheck constraint: ck_chunks_source_type (see original DBML for full definition)."
+}
+
+Table ai.course_indexes [note: 'PostgreSQL-only AI table; active generation is unique per course.'] {
+  course_id integer [not null]
+  generation_id uuid [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  embedding_dimension integer [not null, default: `768`]
+  embedding_model varchar(200) [not null]
+  is_active boolean [not null, default: `false`]
+  status varchar(16) [not null]
+  indexes {
+    (course_id, generation_id) [name: 'PK_course_indexes', pk]
+  }
+  Note: "Conditional/expression uniqueness: ux_course_indexes_active_course (see original DBML for full definition).\nCheck constraint: ck_course_indexes_active_ready (see original DBML for full definition).\nCheck constraint: ck_course_indexes_course (see original DBML for full definition).\nCheck constraint: ck_course_indexes_dimension (see original DBML for full definition).\nCheck constraint: ck_course_indexes_status (see original DBML for full definition)."
+}
+
+Table ai.reindex_jobs [note: 'PostgreSQL-only AI table; one queued/running job per course.'] {
+  id uuid [not null]
+  chunk_count integer [not null]
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  error_code varchar(100)
+  finished_at "timestamp with time zone"
+  generation_id uuid [not null]
+  source_count integer [not null]
+  started_at "timestamp with time zone"
+  status varchar(16) [not null]
+  indexes {
+    (id) [name: 'PK_reindex_jobs', pk]
+  }
+  Note: "Conditional/expression uniqueness: ux_reindex_jobs_in_progress (see original DBML for full definition).\nCheck constraint: ck_reindex_jobs_counts (see original DBML for full definition).\nCheck constraint: ck_reindex_jobs_status (see original DBML for full definition)."
+}
+
+Table ai.chat_history {
+  id uuid [not null]
+  answer text [not null]
+  answer_basis varchar(32) [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  question text [not null]
+  session_id uuid [not null]
+  sources jsonb [not null]
+  indexes {
+    (id) [name: 'PK_chat_history', pk]
+  }
+  Note: "Check constraint: ck_chat_history_answer (see original DBML for full definition).\nCheck constraint: ck_chat_history_basis (see original DBML for full definition).\nCheck constraint: ck_chat_history_question (see original DBML for full definition)."
+}
+
+Table ai.chat_sessions {
+  id uuid [not null]
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  user_id varchar(128) [not null]
+  indexes {
+    (id) [name: 'PK_chat_sessions', pk]
+    (user_id, course_id) [name: 'ux_chat_sessions_user_course', unique]
+  }
+  Note: "Check constraint: ck_chat_sessions_course (see original DBML for full definition).\nCheck constraint: ck_chat_sessions_user (see original DBML for full definition)."
+}
+
+Table ai.course_reindex_outbox {
+  id bigint [not null, increment]
+  attempt_count integer [not null]
+  completed_at "timestamp with time zone"
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  next_attempt_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  reason varchar(64) [not null]
+  remote_generation_id uuid
+  remote_job_id uuid
+  started_at "timestamp with time zone"
+  status varchar(16) [not null]
+  indexes {
+    (id) [name: 'PK_course_reindex_outbox', pk]
+  }
+  Note: "Check constraint: ck_course_reindex_outbox_attempts (see original DBML for full definition).\nCheck constraint: ck_course_reindex_outbox_course (see original DBML for full definition).\nCheck constraint: ck_course_reindex_outbox_status (see original DBML for full definition)."
+}
+
+
+// Auxiliary
+
+Table public.test_vector_backup [note: 'Existing auxiliary/backup table in the live database; not an EF application entity.'] {
+  id integer [not null, increment]
+  course_id integer
+  embedding vector(3)
+  indexes {
+    (id) [name: 'test_vector_backup_pkey', pk]
+  }
+}
+
+TableGroup IdentityAccess {
+  public.AspNetUsers
+  public.AspNetRoles
+  public.AspNetRoleClaims
+  public.AspNetUserClaims
+  public.AspNetUserLogins
+  public.AspNetUserRoles
+  public.AspNetUserTokens
+  public.UserActionTokens
+}
+
+TableGroup ProfileInstructor {
+  public.InstructorRequests
+  public.UserDocuments
+  public.CAT_InstructorApplicationRequirements
+  public.CAT_Levels
+  public.CAT_Occupations
+  public.CAT_Provinces
+}
+
+TableGroup CourseContent {
+  public.Courses
+  public.CourseSections
+  public.Lessons
+  public.Articles
+  public.Videos
+  public.Resources
+  public.CAT_CourseTypes
+  public.CAT_SubjectCategories
+  public.CAT_Tags
+  public.CAT_DocumentTypes
+}
+
+TableGroup EnrollmentProgress {
+  public.Enrollments
+  public.ExamEnrollments
+  public.EnrollmentSectionCompletions
+}
+
+TableGroup Examination {
+  public.Exams
+  public.Questions
+  public.QuestionOptions
+  public.ExamQuestions
+  public.ExamAttempts
+  public.AttemptQuestions
+  public.AttemptAnswers
+  public.CAT_ExamCategories
+  public.CAT_GradingRules
+}
+
+TableGroup EssayCertification {
+  public.CourseEssayAssignments
+  public.CourseEssaySubmissions
+  public.Certificates
+}
+
+TableGroup Payment {
+  public.PaymentOrders
+  public.PaymentOrderItems
+  public.PaymentTransactions
+}
+
+TableGroup VoucherPromotion {
+  public.Vouchers
+  public.UserVouchers
+  public.VoucherGrantCampaigns
+  public.VoucherGrantRules
+  public.VoucherGrantCampaignResults
+  public.VoucherUsages
+  public.CAT_VoucherTypes
+}
+
+TableGroup FeedbackReporting {
+  public.CourseComments
+  public.ExamComments
+  public.Reports
+}
+
+TableGroup CourseChat {
+  public.Conversations
+  public.ChatMessages
+}
+
+TableGroup Notification {
+  public.Notifications
+  public.UserNotifications
+  public.NotificationOutbox
+  public.CAT_NotificationTypes
+}
+
+TableGroup AiAssistant {
+  ai.chunks
+  ai.course_indexes
+  ai.reindex_jobs
+  ai.chat_history
+  ai.chat_sessions
+  ai.course_reindex_outbox
+}
+
+TableGroup Auxiliary {
+  public.test_vector_backup
+}
+
+// Physical foreign keys
+Ref FK_chat_history_chat_sessions_session_id: ai.chat_history.session_id > ai.chat_sessions.id [delete: cascade, update: no action]
+Ref FK_chunks_course_indexes_course_id_generation_id: ai.chunks.(course_id, generation_id) > ai.course_indexes.(course_id, generation_id) [delete: cascade, update: no action]
+Ref FK_reindex_jobs_course_indexes_course_id_generation_id: ai.reindex_jobs.(course_id, generation_id) > ai.course_indexes.(course_id, generation_id) [delete: cascade, update: no action]
+Ref FK_Articles_Lessons_LessonId: public.Articles.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_AspNetRoleClaims_AspNetRoles_RoleId: public.AspNetRoleClaims.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserClaims_AspNetUsers_UserId: public.AspNetUserClaims.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserLogins_AspNetUsers_UserId: public.AspNetUserLogins.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetRoles_RoleId: public.AspNetUserRoles.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetUsers_UserId: public.AspNetUserRoles.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserTokens_AspNetUsers_UserId: public.AspNetUserTokens.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]
+Ref FK_AttemptAnswers_ExamAttempts_AttemptId: public.AttemptAnswers.AttemptId > public.ExamAttempts.Id [delete: cascade, update: no action]
+Ref FK_AttemptAnswers_QuestionOptions_SelectedOptionId: public.AttemptAnswers.SelectedOptionId > public.QuestionOptions.Id [delete: set null, update: no action]
+Ref FK_AttemptAnswers_Questions_QuestionId: public.AttemptAnswers.QuestionId > public.Questions.Id [delete: restrict, update: no action]
+Ref FK_AttemptQuestions_ExamAttempts_AttemptId: public.AttemptQuestions.AttemptId > public.ExamAttempts.Id [delete: cascade, update: no action]
+Ref FK_AttemptQuestions_Questions_QuestionId: public.AttemptQuestions.QuestionId > public.Questions.Id [delete: restrict, update: no action]
+Ref FK_CAT_ExamCategories_CAT_ExamCategories_ParentId: public.CAT_ExamCategories.ParentId > public.CAT_ExamCategories.Id [delete: no action, update: no action]
+Ref FK_CAT_Occupations_CAT_Occupations_ParentId: public.CAT_Occupations.ParentId > public.CAT_Occupations.Id [delete: no action, update: no action]
+Ref FK_CAT_Provinces_CAT_Provinces_ParentId: public.CAT_Provinces.ParentId > public.CAT_Provinces.Id [delete: no action, update: no action]
+Ref FK_CAT_SubjectCategories_CAT_SubjectCategories_ParentId: public.CAT_SubjectCategories.ParentId > public.CAT_SubjectCategories.Id [delete: no action, update: no action]
+Ref FK_Certificates_AspNetUsers_UserId: public.Certificates.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_Certificates_Courses_CourseId: public.Certificates.CourseId > public.Courses.Id [delete: set null, update: no action]
+Ref FK_Certificates_Exams_ExamId: public.Certificates.ExamId > public.Exams.Id [delete: set null, update: no action]
+Ref FK_ChatMessages_AspNetUsers_SenderId: public.ChatMessages.SenderId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ChatMessages_Conversations_ConversationId: public.ChatMessages.ConversationId > public.Conversations.Id [delete: cascade, update: no action]
+Ref FK_Conversations_AspNetUsers_InstructorId: public.Conversations.InstructorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Conversations_AspNetUsers_StudentId: public.Conversations.StudentId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Conversations_Courses_CourseId: public.Conversations.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_CourseComments_AspNetUsers_UserId: public.CourseComments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_CourseComments_CourseComments_ParentCommentId: public.CourseComments.ParentCommentId > public.CourseComments.Id [delete: restrict, update: no action]
+Ref FK_CourseComments_Courses_CourseId: public.CourseComments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_CourseEssayAssignments_Courses_CourseId: public.CourseEssayAssignments.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_AspNetUsers_GradedBy: public.CourseEssaySubmissions.GradedBy > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_AspNetUsers_StudentId: public.CourseEssaySubmissions.StudentId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_CourseEssayAssignments_AssignmentId: public.CourseEssaySubmissions.AssignmentId > public.CourseEssayAssignments.Id [delete: restrict, update: no action]
+Ref FK_CourseSections_Courses_CourseId: public.CourseSections.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_Courses_AspNetUsers_CreatorId: public.Courses.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Courses_CAT_CourseTypes_CourseTypeId: public.Courses.CourseTypeId > public.CAT_CourseTypes.Id [delete: restrict, update: no action]
+Ref FK_Courses_CAT_SubjectCategories_SubjectCategoryId: public.Courses.SubjectCategoryId > public.CAT_SubjectCategories.Id [delete: set null, update: no action]
+Ref FK_Courses_CAT_Tags_TagId: public.Courses.TagId > public.CAT_Tags.Id [delete: set null, update: no action]
+Ref FK_EnrollmentSectionCompletions_CourseSections_SectionId: public.EnrollmentSectionCompletions.SectionId > public.CourseSections.Id [delete: restrict, update: no action]
+Ref FK_EnrollmentSectionCompletions_Enrollments_UserId_CourseId: public.EnrollmentSectionCompletions.(UserId, CourseId) > public.Enrollments.(UserId, CourseId) [delete: cascade, update: no action]
+Ref FK_Enrollments_AspNetUsers_UserId: public.Enrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_Courses_CourseId: public.Enrollments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_Enrollments_PaymentOrders_PaymentOrderId: public.Enrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_ExamAttempts_AspNetUsers_UserId: public.ExamAttempts.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ExamAttempts_Exams_ExamId: public.ExamAttempts.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_ExamComments_AspNetUsers_UserId: public.ExamComments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_ExamComments_ExamComments_ParentCommentId: public.ExamComments.ParentCommentId > public.ExamComments.Id [delete: restrict, update: no action]
+Ref FK_ExamComments_Exams_ExamId: public.ExamComments.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_ExamEnrollments_AspNetUsers_UserId: public.ExamEnrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ExamEnrollments_Exams_ExamId: public.ExamEnrollments.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_ExamEnrollments_PaymentOrders_PaymentOrderId: public.ExamEnrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_ExamQuestions_Exams_ExamId: public.ExamQuestions.ExamId > public.Exams.Id [delete: restrict, update: no action]
+Ref FK_ExamQuestions_Questions_QuestionId: public.ExamQuestions.QuestionId > public.Questions.Id [delete: restrict, update: no action]
+Ref FK_Exams_AspNetUsers_CreatorId: public.Exams.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Exams_CAT_ExamCategories_ExamCategoryId: public.Exams.ExamCategoryId > public.CAT_ExamCategories.Id [delete: set null, update: no action]
+Ref FK_Exams_Courses_CourseId: public.Exams.CourseId > public.Courses.Id [delete: set null, update: no action]
+Ref FK_Exams_Lessons_LessonId: public.Exams.LessonId > public.Lessons.Id [delete: set null, update: no action]
+Ref FK_InstructorRequests_AspNetUsers_UserId: public.InstructorRequests.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_Lessons_CourseSections_SectionId: public.Lessons.SectionId > public.CourseSections.Id [delete: cascade, update: no action]
+Ref FK_Notifications_CAT_NotificationTypes_NotificationTypeId: public.Notifications.NotificationTypeId > public.CAT_NotificationTypes.Id [delete: restrict, update: no action]
+Ref FK_PaymentOrderItems_PaymentOrders_PaymentOrderId: public.PaymentOrderItems.PaymentOrderId > public.PaymentOrders.Id [delete: cascade, update: no action]
+Ref FK_PaymentOrders_AspNetUsers_UserId: public.PaymentOrders.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_PaymentOrders_Vouchers_VoucherId: public.PaymentOrders.VoucherId > public.Vouchers.Id [delete: set null, update: no action]
+Ref FK_PaymentTransactions_PaymentOrders_PaymentOrderId: public.PaymentTransactions.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_QuestionOptions_Questions_QuestionId: public.QuestionOptions.QuestionId > public.Questions.Id [delete: cascade, update: no action]
+Ref FK_Questions_AspNetUsers_CreatorId: public.Questions.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Reports_AspNetUsers_ResolvedBy: public.Reports.ResolvedBy > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Reports_AspNetUsers_UserId: public.Reports.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Reports_Courses_CourseId: public.Reports.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_Reports_Exams_ExamId: public.Reports.ExamId > public.Exams.Id [delete: restrict, update: no action]
+Ref FK_Resources_CAT_DocumentTypes_DocumentTypeId: public.Resources.DocumentTypeId > public.CAT_DocumentTypes.Id [delete: set null, update: no action]
+Ref FK_Resources_Lessons_LessonId: public.Resources.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_UserActionTokens_AspNetUsers_UserId: public.UserActionTokens.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_UserDocuments_AspNetUsers_UserId: public.UserDocuments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref "FK_UserDocuments_CAT_InstructorApplicationRequirements_Applica~": public.UserDocuments.ApplicationTypeId > public.CAT_InstructorApplicationRequirements.Id [delete: restrict, update: no action]
+Ref FK_UserNotifications_AspNetUsers_UserId: public.UserNotifications.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_UserNotifications_Notifications_NotificationId: public.UserNotifications.NotificationId > public.Notifications.Id [delete: cascade, update: no action]
+Ref FK_UserVouchers_AspNetUsers_UserId: public.UserVouchers.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_UserVouchers_PaymentOrders_PaymentOrderId: public.UserVouchers.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_UserVouchers_VoucherGrantCampaigns_GrantCampaignId: public.UserVouchers.GrantCampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_UserVouchers_Vouchers_VoucherId: public.UserVouchers.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_Videos_Lessons_LessonId: public.Videos.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_VoucherGrantCampaignResults_AspNetUsers_UserId: public.VoucherGrantCampaignResults.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaignResults_VoucherGrantCampaigns_CampaignId: public.VoucherGrantCampaignResults.CampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaigns_Vouchers_VoucherId: public.VoucherGrantCampaigns.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantRules_VoucherGrantCampaigns_CampaignId: public.VoucherGrantRules.CampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_PaymentOrders_PaymentOrderId: public.VoucherUsages.PaymentOrderId > public.PaymentOrders.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_UserVouchers_UserVoucherId: public.VoucherUsages.UserVoucherId > public.UserVouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_Vouchers_VoucherId: public.VoucherUsages.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_Vouchers_CAT_VoucherTypes_VoucherTypeId: public.Vouchers.VoucherTypeId > public.CAT_VoucherTypes.Id [delete: restrict, update: no action]
