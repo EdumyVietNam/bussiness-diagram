@@ -1,0 +1,97 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyNotification {
+  database_type: 'PostgreSQL'
+}
+
+Table public.Notifications {
+  Id integer [not null, increment]
+  ActionUrl varchar(1000)
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  EntityId integer
+  EntityType varchar(50)
+  EventKey varchar(200)
+  IsGlobal boolean [not null]
+  NotificationTypeId integer [not null]
+  Status integer [not null]
+  TemplateData jsonb
+  Title varchar(500) [not null]
+  indexes {
+    (Id) [name: 'PK_Notifications', pk]
+    (EventKey) [name: 'IX_Notifications_EventKey', unique]
+  }
+}
+
+Table public.UserNotifications {
+  UserId varchar(36) [not null]
+  NotificationId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  IsRead boolean [not null]
+  ReadAt "timestamp with time zone"
+  indexes {
+    (UserId, NotificationId) [name: 'PK_UserNotifications', pk]
+  }
+
+}
+
+Table public.NotificationOutbox [note: 'Logical references to recipient/entity/notification; migration creates TR_NotificationOutbox_Notify.'] {
+  Id bigint [not null, increment]
+  ActionUrl varchar(1000)
+  AttemptCount integer [not null]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  DeliveredAt "timestamp with time zone"
+  EntityId integer
+  EntityType varchar(50)
+  EventKey varchar(200) [not null]
+  NextAttemptAt "timestamp with time zone" [not null]
+  NotificationId integer
+  RecipientUserId varchar(450) [not null]
+  SourceModule varchar(30) [not null]
+  TemplateData jsonb
+  Title varchar(500) [not null]
+  TypeCode varchar(100) [not null]
+  indexes {
+    (Id) [name: 'PK_NotificationOutbox', pk]
+    (EventKey) [name: 'IX_NotificationOutbox_EventKey', unique]
+  }
+}
+
+Table public.CAT_NotificationTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Color varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Icon varchar(50)
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_NotificationTypes', pk]
+    (Code) [name: 'IX_CAT_NotificationTypes_Code', unique]
+  }
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  PhoneNumber text
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+  Note: "External FK: Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]"
+}
+
+Ref FK_Notifications_CAT_NotificationTypes_NotificationTypeId: public.Notifications.NotificationTypeId > public.CAT_NotificationTypes.Id [delete: restrict, update: no action]
+Ref FK_UserNotifications_AspNetUsers_UserId: public.UserNotifications.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_UserNotifications_Notifications_NotificationId: public.UserNotifications.NotificationId > public.Notifications.Id [delete: cascade, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.

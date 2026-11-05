@@ -1,0 +1,144 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyEssayCertification {
+  database_type: 'PostgreSQL'
+}
+
+Table public.CourseEssayAssignments {
+  Id integer [not null, increment]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  PublicUrl varchar(1000)
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CourseEssayAssignments', pk]
+  }
+  Note: "Conditional/expression uniqueness: (CourseId) [name: 'IX_CourseEssayAssignments_CourseId', unique, note: 'Filter: (\"Status\" <> \\'-1\\'::integer)']\nCheck: `((\"PublicUrl\" IS NULL) OR (length(TRIM(BOTH FROM \"PublicUrl\")) > 0))` [name: 'CK_CourseEssayAssignments_PublicUrl']"
+}
+
+Table public.CourseEssaySubmissions {
+  Id integer [not null, increment]
+  AssignmentId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  GradedAt "timestamp with time zone"
+  GradedBy varchar(36)
+  GradingNote text
+  GradingResult integer [not null, default: `0`]
+  Score numeric(4,2)
+  Status integer [not null]
+  StudentId varchar(36) [not null]
+  SubmissionUrl varchar(1000) [not null]
+  indexes {
+    (Id) [name: 'PK_CourseEssaySubmissions', pk]
+  }
+  Note: "Conditional/expression uniqueness: (AssignmentId, StudentId) [name: 'UX_CourseEssaySubmissions_OnePending', unique, note: 'Filter: ((\"GradingResult\" = 0) AND (\"Status\" <> \\'-1\\'::integer))']\nCheck: `(((\"GradingResult\" = 0) AND (\"GradedBy\" IS NULL) AND (\"GradedAt\" IS NULL) AND (\"Score\" IS NULL)) OR ((\"GradingResult\" = ANY (ARRAY[1, 2])) AND (\"GradedBy\" IS NOT NULL) AND (\"GradedAt\" IS NOT NULL)))` [name: 'CK_CourseEssaySubmissions_Grading']\nCheck: `((\"Score\" IS NULL) OR ((\"Score\" >= (0)::numeric) AND (\"Score\" <= (10)::numeric)))` [name: 'CK_CourseEssaySubmissions_Score']\nCheck: `(length(TRIM(BOTH FROM \"SubmissionUrl\")) > 0)` [name: 'CK_CourseEssaySubmissions_Url']"
+}
+
+Table public.Certificates {
+  Id integer [not null, increment]
+  CertificateNumber varchar(50)
+  CertificateUrl varchar(1000)
+  CourseId integer
+  CreatedAt "timestamp with time zone" [not null]
+  ExamId integer
+  IssuedAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Certificates', pk]
+    (CertificateNumber) [name: 'IX_Certificates_CertificateNumber', unique]
+  }
+
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  PhoneNumber text
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+  Note: "External FK: Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]"
+}
+
+Table public.Courses [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CreatorId varchar(36) [not null]
+  HasCertificate boolean [not null, default: `false`]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  HasEssay boolean [default: `false`]
+  indexes {
+    (Id) [name: 'PK_Courses', pk]
+  }
+  Note: "External FK: Ref FK_Courses_CAT_CourseTypes_CourseTypeId: public.Courses.CourseTypeId > public.CAT_CourseTypes.Id [delete: restrict, update: no action]\nExternal FK: Ref FK_Courses_CAT_SubjectCategories_SubjectCategoryId: public.Courses.SubjectCategoryId > public.CAT_SubjectCategories.Id [delete: set null, update: no action]\nExternal FK: Ref FK_Courses_CAT_Tags_TagId: public.Courses.TagId > public.CAT_Tags.Id [delete: set null, update: no action]"
+}
+
+Table public.Enrollments [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  UserId varchar(36) [not null]
+  CourseId integer [not null]
+  CompletedAt "timestamp with time zone"
+  EnrolledAt "timestamp with time zone" [not null]
+  IsCertificateIssued boolean [not null]
+  PaymentOrderId integer
+  Progress numeric(5,2) [not null]
+  Status integer [not null]
+  indexes {
+    (UserId, CourseId) [name: 'PK_Enrollments', pk]
+  }
+  Note: "External FK: Ref FK_Enrollments_PaymentOrders_PaymentOrderId: public.Enrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]"
+}
+
+Table public.ExamAttempts [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  ExamId integer [not null]
+  PassingScoreSnapshot numeric(18,2)
+  Score numeric(18,2)
+  Status integer [not null]
+  SubmitAt "timestamp with time zone"
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ExamAttempts', pk]
+  }
+}
+
+Table public.Exams [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CourseId integer
+  CreatorId varchar(36) [not null]
+  LessonId integer
+  PassingScore numeric(18,2)
+  Status integer [not null]
+  Title varchar(255) [not null]
+  indexes {
+    (Id) [name: 'PK_Exams', pk]
+  }
+  Note: "External FK: Ref FK_Exams_CAT_ExamCategories_ExamCategoryId: public.Exams.ExamCategoryId > public.CAT_ExamCategories.Id [delete: set null, update: no action]\nExternal FK: Ref FK_Exams_Lessons_LessonId: public.Exams.LessonId > public.Lessons.Id [delete: set null, update: no action]"
+}
+
+Ref FK_Certificates_AspNetUsers_UserId: public.Certificates.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_Certificates_Courses_CourseId: public.Certificates.CourseId > public.Courses.Id [delete: set null, update: no action]
+Ref FK_Certificates_Exams_ExamId: public.Certificates.ExamId > public.Exams.Id [delete: set null, update: no action]
+Ref FK_CourseEssayAssignments_Courses_CourseId: public.CourseEssayAssignments.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_AspNetUsers_GradedBy: public.CourseEssaySubmissions.GradedBy > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_AspNetUsers_StudentId: public.CourseEssaySubmissions.StudentId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_CourseEssaySubmissions_CourseEssayAssignments_AssignmentId: public.CourseEssaySubmissions.AssignmentId > public.CourseEssayAssignments.Id [delete: restrict, update: no action]
+Ref FK_Courses_AspNetUsers_CreatorId: public.Courses.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_AspNetUsers_UserId: public.Enrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_Courses_CourseId: public.Enrollments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_ExamAttempts_AspNetUsers_UserId: public.ExamAttempts.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ExamAttempts_Exams_ExamId: public.ExamAttempts.ExamId > public.Exams.Id [delete: cascade, update: no action]
+Ref FK_Exams_AspNetUsers_CreatorId: public.Exams.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Exams_Courses_CourseId: public.Exams.CourseId > public.Courses.Id [delete: set null, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.

@@ -1,0 +1,92 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyCourseChat {
+  database_type: 'PostgreSQL'
+}
+
+Table public.Conversations {
+  Id integer [not null, increment]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  InstructorId varchar(36) [not null]
+  LastMessageAt "timestamp with time zone"
+  Status integer [not null]
+  StudentId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_Conversations', pk]
+    (StudentId, InstructorId, CourseId) [name: 'IX_Conversations_StudentId_InstructorId_CourseId', unique]
+  }
+
+}
+
+Table public.ChatMessages {
+  Id bigint [not null, increment]
+  ClientMessageId uuid [not null]
+  Content text [not null]
+  ConversationId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  IsRead boolean [not null]
+  ReadAt "timestamp with time zone"
+  SenderId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_ChatMessages', pk]
+    (SenderId, ClientMessageId) [name: 'IX_ChatMessages_SenderId_ClientMessageId', unique]
+  }
+
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  PhoneNumber text
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+  Note: "External FK: Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]"
+}
+
+Table public.Courses [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CreatorId varchar(36) [not null]
+  HasCertificate boolean [not null, default: `false`]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  HasEssay boolean [default: `false`]
+  indexes {
+    (Id) [name: 'PK_Courses', pk]
+  }
+  Note: "External FK: Ref FK_Courses_CAT_CourseTypes_CourseTypeId: public.Courses.CourseTypeId > public.CAT_CourseTypes.Id [delete: restrict, update: no action]\nExternal FK: Ref FK_Courses_CAT_SubjectCategories_SubjectCategoryId: public.Courses.SubjectCategoryId > public.CAT_SubjectCategories.Id [delete: set null, update: no action]\nExternal FK: Ref FK_Courses_CAT_Tags_TagId: public.Courses.TagId > public.CAT_Tags.Id [delete: set null, update: no action]"
+}
+
+Table public.Enrollments [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  UserId varchar(36) [not null]
+  CourseId integer [not null]
+  CompletedAt "timestamp with time zone"
+  EnrolledAt "timestamp with time zone" [not null]
+  IsCertificateIssued boolean [not null]
+  PaymentOrderId integer
+  Progress numeric(5,2) [not null]
+  Status integer [not null]
+  indexes {
+    (UserId, CourseId) [name: 'PK_Enrollments', pk]
+  }
+  Note: "External FK: Ref FK_Enrollments_PaymentOrders_PaymentOrderId: public.Enrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]"
+}
+
+Ref FK_ChatMessages_AspNetUsers_SenderId: public.ChatMessages.SenderId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_ChatMessages_Conversations_ConversationId: public.ChatMessages.ConversationId > public.Conversations.Id [delete: cascade, update: no action]
+Ref FK_Conversations_AspNetUsers_InstructorId: public.Conversations.InstructorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Conversations_AspNetUsers_StudentId: public.Conversations.StudentId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Conversations_Courses_CourseId: public.Conversations.CourseId > public.Courses.Id [delete: restrict, update: no action]
+Ref FK_Courses_AspNetUsers_CreatorId: public.Courses.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_AspNetUsers_UserId: public.Enrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_Courses_CourseId: public.Enrollments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.

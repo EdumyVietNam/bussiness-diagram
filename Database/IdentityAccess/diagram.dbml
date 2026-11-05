@@ -1,0 +1,160 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyIdentityAccess {
+  database_type: 'PostgreSQL'
+}
+
+Table public.AspNetUsers {
+  Id text [not null]
+  Address text
+  AvatarUrl text
+  CreatedAt "timestamp with time zone" [not null]
+  DateOfBirth "timestamp with time zone"
+  Description text
+  Email varchar(256)
+  EmailConfirmed boolean [not null]
+  FullName text [not null]
+  Gender smallint
+  GoogleId text
+  LastLoginAt "timestamp with time zone"
+  LevelId integer
+  LockoutEnabled boolean [not null]
+  LockoutEnd "timestamp with time zone"
+  NormalizedUserName varchar(256)
+  OccupationId integer
+  PhoneNumber text
+  PhoneNumberConfirmed boolean [not null]
+  ProvinceId integer
+  Status integer [not null]
+  TwoFactorEnabled boolean [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+    (GoogleId) [name: 'IX_AspNetUsers_GoogleId', unique]
+    (NormalizedUserName) [name: 'UserNameIndex', unique]
+  }
+
+}
+
+Table public.AspNetRoles {
+  Id text [not null]
+  Name varchar(256)
+  NormalizedName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetRoles', pk]
+    (NormalizedName) [name: 'RoleNameIndex', unique]
+  }
+}
+
+Table public.AspNetRoleClaims {
+  Id integer [not null, increment]
+  RoleId text [not null]
+  ClaimType text
+  ClaimValue text
+  indexes {
+    (Id) [name: 'PK_AspNetRoleClaims', pk]
+  }
+}
+
+Table public.AspNetUserClaims {
+  Id integer [not null, increment]
+  UserId text [not null]
+  ClaimType text
+  ClaimValue text
+  indexes {
+    (Id) [name: 'PK_AspNetUserClaims', pk]
+  }
+}
+
+Table public.AspNetUserLogins {
+  LoginProvider text [not null]
+  ProviderKey text [not null]
+  ProviderDisplayName text
+  UserId text [not null]
+  indexes {
+    (LoginProvider, ProviderKey) [name: 'PK_AspNetUserLogins', pk]
+  }
+}
+
+Table public.AspNetUserRoles {
+  UserId text [not null]
+  RoleId text [not null]
+  indexes {
+    (UserId, RoleId) [name: 'PK_AspNetUserRoles', pk]
+  }
+}
+
+Table public.AspNetUserTokens {
+  UserId text [not null]
+  LoginProvider text [not null]
+  Name text [not null]
+  Value text
+  indexes {
+    (UserId, LoginProvider, Name) [name: 'PK_AspNetUserTokens', pk]
+  }
+}
+
+Table public.UserActionTokens {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Email text [not null]
+  ExpiresAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  TokenHash text [not null]
+  Type smallint [not null]
+  UsedAt "timestamp with time zone"
+  UserId text [not null]
+  indexes {
+    (Id) [name: 'PK_UserActionTokens', pk]
+    (TokenHash) [name: 'IX_UserActionTokens_TokenHash', unique]
+  }
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.CAT_Levels [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Name varchar(255)
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Levels', pk]
+  }
+}
+
+Table public.CAT_Occupations [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Name varchar(255)
+  ParentId integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Occupations', pk]
+  }
+}
+
+Table public.CAT_Provinces [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Name varchar(255)
+  ParentId integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Provinces', pk]
+  }
+}
+
+Ref FK_AspNetRoleClaims_AspNetRoles_RoleId: public.AspNetRoleClaims.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserClaims_AspNetUsers_UserId: public.AspNetUserClaims.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserLogins_AspNetUsers_UserId: public.AspNetUserLogins.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetRoles_RoleId: public.AspNetUserRoles.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetUsers_UserId: public.AspNetUserRoles.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserTokens_AspNetUsers_UserId: public.AspNetUserTokens.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]
+Ref FK_CAT_Occupations_CAT_Occupations_ParentId: public.CAT_Occupations.ParentId > public.CAT_Occupations.Id [delete: no action, update: no action]
+Ref FK_CAT_Provinces_CAT_Provinces_ParentId: public.CAT_Provinces.ParentId > public.CAT_Provinces.Id [delete: no action, update: no action]
+Ref FK_UserActionTokens_AspNetUsers_UserId: public.UserActionTokens.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.

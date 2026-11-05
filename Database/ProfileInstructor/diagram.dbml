@@ -1,0 +1,138 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyProfileInstructor {
+  database_type: 'PostgreSQL'
+}
+
+Table public.InstructorRequests {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Note text
+  RequestStatus integer [not null]
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_InstructorRequests', pk]
+  }
+
+}
+
+Table public.UserDocuments {
+  Id integer [not null, increment]
+  ApplicationTypeId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  FileName varchar(255)
+  FileUrl varchar(1000)
+  Status integer [not null]
+  UploadedAt "timestamp with time zone" [not null]
+  UserId varchar(36) [not null]
+  indexes {
+    (Id) [name: 'PK_UserDocuments', pk]
+  }
+
+}
+
+Table public.CAT_InstructorApplicationRequirements {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_InstructorApplicationRequirements', pk]
+    (Code) [name: 'IX_CAT_InstructorApplicationRequirements_Code', unique]
+  }
+}
+
+Table public.CAT_Levels {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Levels', pk]
+    (Code) [name: 'IX_CAT_Levels_Code', unique]
+  }
+}
+
+Table public.CAT_Occupations {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Occupations', pk]
+    (Code) [name: 'IX_CAT_Occupations_Code', unique]
+  }
+}
+
+Table public.CAT_Provinces {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Provinces', pk]
+    (Code) [name: 'IX_CAT_Provinces_Code', unique]
+  }
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetRoles [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  Name varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetRoles', pk]
+  }
+}
+
+Table public.AspNetUserRoles [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  UserId text [not null]
+  RoleId text [not null]
+  indexes {
+    (UserId, RoleId) [name: 'PK_AspNetUserRoles', pk]
+  }
+}
+
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  LevelId integer
+  OccupationId integer
+  PhoneNumber text
+  ProvinceId integer
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+}
+
+Ref FK_AspNetUserRoles_AspNetRoles_RoleId: public.AspNetUserRoles.RoleId > public.AspNetRoles.Id [delete: cascade, update: no action]
+Ref FK_AspNetUserRoles_AspNetUsers_UserId: public.AspNetUserRoles.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]
+Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]
+Ref FK_CAT_Occupations_CAT_Occupations_ParentId: public.CAT_Occupations.ParentId > public.CAT_Occupations.Id [delete: no action, update: no action]
+Ref FK_CAT_Provinces_CAT_Provinces_ParentId: public.CAT_Provinces.ParentId > public.CAT_Provinces.Id [delete: no action, update: no action]
+Ref FK_InstructorRequests_AspNetUsers_UserId: public.InstructorRequests.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref FK_UserDocuments_AspNetUsers_UserId: public.UserDocuments.UserId > public.AspNetUsers.Id [delete: cascade, update: no action]
+Ref "FK_UserDocuments_CAT_InstructorApplicationRequirements_Applica~": public.UserDocuments.ApplicationTypeId > public.CAT_InstructorApplicationRequirements.Id [delete: restrict, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.

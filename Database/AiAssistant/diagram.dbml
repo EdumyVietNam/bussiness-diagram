@@ -1,0 +1,158 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyAiAssistant {
+  database_type: 'PostgreSQL'
+}
+
+Table ai.chunks [note: 'PostgreSQL-only AI table; embedding is vector(768).'] {
+  id uuid [not null]
+  chunk_index integer [not null]
+  content text [not null]
+  course_id integer [not null]
+  course_title text [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  embedding vector(768) [not null]
+  generation_id uuid [not null]
+  heading text
+  lesson_id integer
+  lesson_title text
+  section_id integer
+  section_title text
+  source_id integer [not null]
+  source_type varchar(24) [not null]
+  indexes {
+    (id) [name: 'PK_chunks', pk]
+    (course_id, generation_id, source_type, source_id, chunk_index) [name: 'ux_chunks_source_position', unique]
+  }
+  Note: "Check: `(length(btrim(content)) > 0)` [name: 'ck_chunks_content']\nCheck: `((source_id > 0) AND (chunk_index >= 0))` [name: 'ck_chunks_source']\nCheck: `((source_type)::text = ANY ((ARRAY['course_metadata'::character varying, 'section_metadata'::character varying, 'lesson_metadata'::character varying, 'article'::character varying])::text[]))` [name: 'ck_chunks_source_type']"
+}
+
+Table ai.course_indexes [note: 'PostgreSQL-only AI table; active generation is unique per course.'] {
+  course_id integer [not null]
+  generation_id uuid [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  embedding_dimension integer [not null, default: `768`]
+  embedding_model varchar(200) [not null]
+  is_active boolean [not null, default: `false`]
+  status varchar(16) [not null]
+  indexes {
+    (course_id, generation_id) [name: 'PK_course_indexes', pk]
+  }
+  Note: "Conditional/expression uniqueness: (course_id) [name: 'ux_course_indexes_active_course', unique, note: 'Filter: is_active']\nCheck: `((NOT is_active) OR ((status)::text = 'ready'::text))` [name: 'ck_course_indexes_active_ready']\nCheck: `(course_id > 0)` [name: 'ck_course_indexes_course']\nCheck: `(embedding_dimension = 768)` [name: 'ck_course_indexes_dimension']\nCheck: `((status)::text = ANY ((ARRAY['building'::character varying, 'ready'::character varying, 'failed'::character varying, 'interrupted'::character varying])::text[]))` [name: 'ck_course_indexes_status']"
+}
+
+Table ai.reindex_jobs [note: 'PostgreSQL-only AI table; one queued/running job per course.'] {
+  id uuid [not null]
+  chunk_count integer [not null]
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  error_code varchar(100)
+  finished_at "timestamp with time zone"
+  generation_id uuid [not null]
+  source_count integer [not null]
+  started_at "timestamp with time zone"
+  status varchar(16) [not null]
+  indexes {
+    (id) [name: 'PK_reindex_jobs', pk]
+  }
+  Note: "Conditional/expression uniqueness: (course_id) [name: 'ux_reindex_jobs_in_progress', unique, note: 'Filter: ((status)::text = ANY ((ARRAY[\\'queued\\'::character varying, \\'running\\'::character varying])::text[]))']\nCheck: `((source_count >= 0) AND (chunk_count >= 0))` [name: 'ck_reindex_jobs_counts']\nCheck: `((status)::text = ANY ((ARRAY['queued'::character varying, 'running'::character varying, 'completed'::character varying, 'failed'::character varying, 'interrupted'::character varying])::text[]))` [name: 'ck_reindex_jobs_status']"
+}
+
+Table ai.chat_history {
+  id uuid [not null]
+  answer text [not null]
+  answer_basis varchar(32) [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  question text [not null]
+  session_id uuid [not null]
+  sources jsonb [not null]
+  indexes {
+    (id) [name: 'PK_chat_history', pk]
+  }
+  Note: "Check: `(length(btrim(answer)) > 0)` [name: 'ck_chat_history_answer']\nCheck: `((answer_basis)::text = ANY ((ARRAY['course'::character varying, 'model_knowledge'::character varying, 'course_and_model_knowledge'::character varying])::text[]))` [name: 'ck_chat_history_basis']\nCheck: `(length(btrim(question)) > 0)` [name: 'ck_chat_history_question']"
+}
+
+Table ai.chat_sessions {
+  id uuid [not null]
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  user_id varchar(128) [not null]
+  indexes {
+    (id) [name: 'PK_chat_sessions', pk]
+    (user_id, course_id) [name: 'ux_chat_sessions_user_course', unique]
+  }
+  Note: "Check: `(course_id > 0)` [name: 'ck_chat_sessions_course']\nCheck: `(length(btrim((user_id)::text)) > 0)` [name: 'ck_chat_sessions_user']"
+}
+
+Table ai.course_reindex_outbox {
+  id bigint [not null, increment]
+  attempt_count integer [not null]
+  completed_at "timestamp with time zone"
+  course_id integer [not null]
+  created_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  next_attempt_at "timestamp with time zone" [not null, default: `CURRENT_TIMESTAMP`]
+  reason varchar(64) [not null]
+  remote_generation_id uuid
+  remote_job_id uuid
+  started_at "timestamp with time zone"
+  status varchar(16) [not null]
+  indexes {
+    (id) [name: 'PK_course_reindex_outbox', pk]
+  }
+  Note: "Check: `(attempt_count >= 0)` [name: 'ck_course_reindex_outbox_attempts']\nCheck: `(course_id > 0)` [name: 'ck_course_reindex_outbox_course']\nCheck: `((status)::text = ANY ((ARRAY['pending'::character varying, 'processing'::character varying, 'succeeded'::character varying, 'failed'::character varying])::text[]))` [name: 'ck_course_reindex_outbox_status']"
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  PhoneNumber text
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+  Note: "External FK: Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]"
+}
+
+Table public.Courses [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CreatorId varchar(36) [not null]
+  HasCertificate boolean [not null, default: `false`]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  HasEssay boolean [default: `false`]
+  indexes {
+    (Id) [name: 'PK_Courses', pk]
+  }
+  Note: "External FK: Ref FK_Courses_CAT_CourseTypes_CourseTypeId: public.Courses.CourseTypeId > public.CAT_CourseTypes.Id [delete: restrict, update: no action]\nExternal FK: Ref FK_Courses_CAT_SubjectCategories_SubjectCategoryId: public.Courses.SubjectCategoryId > public.CAT_SubjectCategories.Id [delete: set null, update: no action]\nExternal FK: Ref FK_Courses_CAT_Tags_TagId: public.Courses.TagId > public.CAT_Tags.Id [delete: set null, update: no action]"
+}
+
+Table public.Enrollments [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  UserId varchar(36) [not null]
+  CourseId integer [not null]
+  CompletedAt "timestamp with time zone"
+  EnrolledAt "timestamp with time zone" [not null]
+  IsCertificateIssued boolean [not null]
+  PaymentOrderId integer
+  Progress numeric(5,2) [not null]
+  Status integer [not null]
+  indexes {
+    (UserId, CourseId) [name: 'PK_Enrollments', pk]
+  }
+  Note: "External FK: Ref FK_Enrollments_PaymentOrders_PaymentOrderId: public.Enrollments.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]"
+}
+
+Ref FK_chat_history_chat_sessions_session_id: ai.chat_history.session_id > ai.chat_sessions.id [delete: cascade, update: no action]
+Ref FK_chunks_course_indexes_course_id_generation_id: ai.chunks.(course_id, generation_id) > ai.course_indexes.(course_id, generation_id) [delete: cascade, update: no action]
+Ref FK_reindex_jobs_course_indexes_course_id_generation_id: ai.reindex_jobs.(course_id, generation_id) > ai.course_indexes.(course_id, generation_id) [delete: cascade, update: no action]
+Ref FK_Courses_AspNetUsers_CreatorId: public.Courses.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_AspNetUsers_UserId: public.Enrollments.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Enrollments_Courses_CourseId: public.Enrollments.CourseId > public.Courses.Id [delete: cascade, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.
+// ai.* course_id/user_id and public.Courses/AspNetUsers: logical context only; no physical FK in source.

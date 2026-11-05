@@ -1,0 +1,191 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyVoucherPromotion {
+  database_type: 'PostgreSQL'
+}
+
+Table public.Vouchers [note: 'Migration-only expression unique index IX_Vouchers_Code_Normalized on UPPER(BTRIM(Code)).'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  Condition text
+  CreatedAt "timestamp with time zone" [not null]
+  CurrentUsage integer [not null]
+  Description text
+  DiscountType integer [not null]
+  DiscountValue numeric(18,2) [not null]
+  EndDate "timestamp with time zone"
+  MaxDiscountAmount numeric(18,2)
+  MaxUsage integer [not null]
+  MinOrderAmount numeric(18,2) [not null, default: `0.0`]
+  Name varchar(255)
+  ReservedUsage integer [not null, default: `0`]
+  StartDate "timestamp with time zone"
+  Status integer [not null]
+  VoucherTypeId integer [not null]
+  indexes {
+    (Id) [name: 'PK_Vouchers', pk]
+    (Code) [name: 'IX_Vouchers_Code', unique]
+  }
+  Note: "Conditional/expression uniqueness: (`upper(btrim(\"Code\"::text))`) [name: 'IX_Vouchers_Code_Normalized', unique, note: 'Filter: (\"Code\" IS NOT NULL)']\nCheck: `((\"MaxDiscountAmount\" IS NULL) OR (\"MaxDiscountAmount\" > (0)::numeric))` [name: 'CK_Vouchers_MaxDiscountAmount_NonNegative']\nCheck: `((\"MaxUsage\" = 0) OR ((\"CurrentUsage\" + \"ReservedUsage\") <= \"MaxUsage\"))` [name: 'CK_Vouchers_MaxUsage_Quota']\nCheck: `(\"MinOrderAmount\" >= (0)::numeric)` [name: 'CK_Vouchers_MinOrderAmount_NonNegative']\nCheck: `((\"CurrentUsage\" >= 0) AND (\"ReservedUsage\" >= 0))` [name: 'CK_Vouchers_UsageCounters_NonNegative']"
+}
+
+Table public.UserVouchers {
+  UserId varchar(36) [not null]
+  VoucherId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  ExpireAt "timestamp with time zone"
+  GrantCampaignId integer
+  GrantSource integer [not null, default: `0`]
+  GrantedBy varchar(36)
+  IsUsed boolean [not null]
+  PaymentOrderId integer
+  RevokeReason text
+  RevokedAt "timestamp with time zone"
+  RevokedBy varchar(36)
+  UsedAt "timestamp with time zone"
+  Id bigint [not null, increment]
+  indexes {
+    (Id) [name: 'PK_UserVouchers', pk]
+  }
+
+}
+
+Table public.VoucherGrantCampaigns {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null, default: `0`]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  Status integer [not null]
+  VoucherId integer [not null]
+  indexes {
+    (Id) [name: 'PK_VoucherGrantCampaigns', pk]
+  }
+}
+
+Table public.VoucherGrantRules {
+  Id integer [not null, increment]
+  CampaignId integer [not null]
+  RulesVersion integer [not null]
+  RegisteredFromUtc "timestamp with time zone"
+  RegisteredToUtc "timestamp with time zone"
+  EnrolledCourses_Min integer
+  EnrolledCourses_Max integer
+  EnrolledExams_Min integer
+  EnrolledExams_Max integer
+  EnrolledProductsTotal_Min integer
+  EnrolledProductsTotal_Max integer
+  CertificateCount_Min integer
+  CertificateCount_Max integer
+  PaidAmount_Min numeric(18,2)
+  PaidAmount_Max numeric(18,2)
+  PaidAmount_PaidFromUtc "timestamp with time zone"
+  PaidAmount_PaidToUtc "timestamp with time zone"
+  PublishedCourses_Min integer
+  PublishedCourses_Max integer
+  PublishedExams_Min integer
+  PublishedExams_Max integer
+  PublishedProductsTotal_Min integer
+  PublishedProductsTotal_Max integer
+  Description text
+  CreatedAt "timestamp with time zone" [not null]
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_VoucherGrantRules', pk]
+    (CampaignId) [name: 'IX_VoucherGrantRules_CampaignId', unique]
+  }
+}
+
+Table public.VoucherGrantCampaignResults {
+  CampaignId integer [not null]
+  UserId varchar(36) [not null]
+  Status integer [not null]
+  ReasonCode varchar(100)
+  ProcessedAt "timestamp with time zone"
+  GrantedAt "timestamp with time zone"
+  indexes {
+    (CampaignId, UserId) [name: 'PK_VoucherGrantCampaignResults', pk]
+  }
+
+}
+
+Table public.VoucherUsages {
+  Id bigint [not null, increment]
+  ConsumedAt "timestamp with time zone"
+  DiscountAmount numeric(18,2) [not null]
+  PaymentOrderId integer [not null]
+  ReleaseReason text
+  ReleasedAt "timestamp with time zone"
+  ReservedAt "timestamp with time zone" [not null]
+  ReservedUntil "timestamp with time zone"
+  Status integer [not null]
+  UserId varchar(36) [not null]
+  VoucherId integer [not null]
+  UserVoucherId bigint
+  indexes {
+    (Id) [name: 'PK_VoucherUsages', pk]
+    (PaymentOrderId) [name: 'IX_VoucherUsages_PaymentOrderId', unique]
+  }
+  Note: "Conditional/expression uniqueness: (UserVoucherId, Status) [name: 'IX_VoucherUsages_UserVoucherId_Status', unique, note: 'Filter: (\"Status\" = ANY (ARRAY[0, 1]))']\nCheck: `(\"DiscountAmount\" >= (0)::numeric)` [name: 'CK_VoucherUsages_DiscountAmount_NonNegative']"
+}
+
+Table public.CAT_VoucherTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_VoucherTypes', pk]
+    (Code) [name: 'IX_CAT_VoucherTypes_Code', unique]
+  }
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  PhoneNumber text
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+  Note: "External FK: Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]"
+}
+
+Table public.PaymentOrders [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id integer [not null, increment]
+  Code varchar(50)
+  OrderStatus integer [not null]
+  PaidAt "timestamp with time zone"
+  TotalAmount numeric(18,2) [not null]
+  UserId varchar(36) [not null]
+  VoucherId integer
+  indexes {
+    (Id) [name: 'PK_PaymentOrders', pk]
+  }
+}
+
+Ref FK_PaymentOrders_AspNetUsers_UserId: public.PaymentOrders.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_PaymentOrders_Vouchers_VoucherId: public.PaymentOrders.VoucherId > public.Vouchers.Id [delete: set null, update: no action]
+Ref FK_UserVouchers_AspNetUsers_UserId: public.UserVouchers.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_UserVouchers_PaymentOrders_PaymentOrderId: public.UserVouchers.PaymentOrderId > public.PaymentOrders.Id [delete: set null, update: no action]
+Ref FK_UserVouchers_VoucherGrantCampaigns_GrantCampaignId: public.UserVouchers.GrantCampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_UserVouchers_Vouchers_VoucherId: public.UserVouchers.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaignResults_AspNetUsers_UserId: public.VoucherGrantCampaignResults.UserId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaignResults_VoucherGrantCampaigns_CampaignId: public.VoucherGrantCampaignResults.CampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantCampaigns_Vouchers_VoucherId: public.VoucherGrantCampaigns.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherGrantRules_VoucherGrantCampaigns_CampaignId: public.VoucherGrantRules.CampaignId > public.VoucherGrantCampaigns.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_PaymentOrders_PaymentOrderId: public.VoucherUsages.PaymentOrderId > public.PaymentOrders.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_UserVouchers_UserVoucherId: public.VoucherUsages.UserVoucherId > public.UserVouchers.Id [delete: restrict, update: no action]
+Ref FK_VoucherUsages_Vouchers_VoucherId: public.VoucherUsages.VoucherId > public.Vouchers.Id [delete: restrict, update: no action]
+Ref FK_Vouchers_CAT_VoucherTypes_VoucherTypeId: public.Vouchers.VoucherTypeId > public.CAT_VoucherTypes.Id [delete: restrict, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.

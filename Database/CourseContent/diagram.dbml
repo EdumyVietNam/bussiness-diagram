@@ -1,0 +1,195 @@
+// Source SHA256: 8e6e97193434f56f10d28d3be7527d797806c8cf8706738427b3dbf1bf55b4ed
+// Simplified reading diagram; not a full migration schema.
+// Primary tables own the domain; reference tables provide local context.
+Project EdumyCourseContent {
+  database_type: 'PostgreSQL'
+}
+
+Table public.Courses {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CourseTypeId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  CreatorId varchar(36) [not null]
+  Description text
+  HasCertificate boolean [not null, default: `false`]
+  Price numeric(18,2) [not null]
+  PromotionPrice numeric
+  ReviewNote varchar(2000)
+  ReviewedAt "timestamp with time zone"
+  ReviewedBy varchar(36)
+  Status integer [not null]
+  SubjectCategoryId integer
+  SubmittedAt "timestamp with time zone"
+  TagId integer
+  ThumbnailUrl varchar(500)
+  Title varchar(255) [not null]
+  HasEssay boolean [default: `false`]
+  indexes {
+    (Id) [name: 'PK_Courses', pk]
+  }
+
+}
+
+Table public.CourseSections {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CompletedLessons integer [not null]
+  CourseId integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  IsRequired boolean [not null]
+  Order integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  TotalLessons integer [not null]
+  indexes {
+    (Id) [name: 'PK_CourseSections', pk]
+  }
+}
+
+Table public.Lessons {
+  Id integer [not null, increment]
+  BusinessStatus integer [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Duration integer
+  Order integer [not null]
+  SectionId integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Type integer [not null]
+  indexes {
+    (Id) [name: 'PK_Lessons', pk]
+  }
+}
+
+Table public.Articles {
+  Id integer [not null, increment]
+  Content text [not null]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  LessonId integer [not null]
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_Articles', pk]
+    (LessonId) [name: 'IX_Articles_LessonId', unique]
+  }
+}
+
+Table public.Videos {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Duration "double precision"
+  LessonId integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Url varchar(1000)
+  VideoStatus smallint [not null]
+  YoutubeEmbed varchar(1000)
+  indexes {
+    (Id) [name: 'PK_Videos', pk]
+    (LessonId) [name: 'IX_Videos_LessonId', unique]
+  }
+}
+
+Table public.Resources {
+  Id integer [not null, increment]
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  DocumentTypeId integer
+  LessonId integer [not null]
+  Status integer [not null]
+  Title varchar(255) [not null]
+  Url varchar(1000) [not null]
+  indexes {
+    (Id) [name: 'PK_Resources', pk]
+    (LessonId) [name: 'IX_Resources_LessonId', unique]
+  }
+}
+
+Table public.CAT_CourseTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_CourseTypes', pk]
+    (Code) [name: 'IX_CAT_CourseTypes_Code', unique]
+  }
+}
+
+Table public.CAT_SubjectCategories {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  ParentId integer
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_SubjectCategories', pk]
+    (Code) [name: 'IX_CAT_SubjectCategories_Code', unique]
+  }
+}
+
+Table public.CAT_Tags {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_Tags', pk]
+    (Code) [name: 'IX_CAT_Tags_Code', unique]
+  }
+}
+
+Table public.CAT_DocumentTypes {
+  Id integer [not null, increment]
+  Code varchar(50)
+  CreatedAt "timestamp with time zone" [not null]
+  Description text
+  Name varchar(255)
+  SortOrder integer
+  Status integer [not null]
+  indexes {
+    (Id) [name: 'PK_CAT_DocumentTypes', pk]
+    (Code) [name: 'IX_CAT_DocumentTypes_Code', unique]
+  }
+}
+
+// BEGIN REFERENCE CONTEXT
+Table public.AspNetUsers [note: 'Reference table: simplified context from Edumy_Database.dbml; not owned by this cluster.'] {
+  Id text [not null]
+  AvatarUrl text
+  Email varchar(256)
+  FullName text [not null]
+  PhoneNumber text
+  Status integer [not null]
+  UserName varchar(256)
+  indexes {
+    (Id) [name: 'PK_AspNetUsers', pk]
+  }
+  Note: "External FK: Ref FK_AspNetUsers_CAT_Levels_LevelId: public.AspNetUsers.LevelId > public.CAT_Levels.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Occupations_OccupationId: public.AspNetUsers.OccupationId > public.CAT_Occupations.Id [delete: set null, update: no action]\nExternal FK: Ref FK_AspNetUsers_CAT_Provinces_ProvinceId: public.AspNetUsers.ProvinceId > public.CAT_Provinces.Id [delete: set null, update: no action]"
+}
+
+Ref FK_Articles_Lessons_LessonId: public.Articles.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_CAT_SubjectCategories_CAT_SubjectCategories_ParentId: public.CAT_SubjectCategories.ParentId > public.CAT_SubjectCategories.Id [delete: no action, update: no action]
+Ref FK_CourseSections_Courses_CourseId: public.CourseSections.CourseId > public.Courses.Id [delete: cascade, update: no action]
+Ref FK_Courses_AspNetUsers_CreatorId: public.Courses.CreatorId > public.AspNetUsers.Id [delete: restrict, update: no action]
+Ref FK_Courses_CAT_CourseTypes_CourseTypeId: public.Courses.CourseTypeId > public.CAT_CourseTypes.Id [delete: restrict, update: no action]
+Ref FK_Courses_CAT_SubjectCategories_SubjectCategoryId: public.Courses.SubjectCategoryId > public.CAT_SubjectCategories.Id [delete: set null, update: no action]
+Ref FK_Courses_CAT_Tags_TagId: public.Courses.TagId > public.CAT_Tags.Id [delete: set null, update: no action]
+Ref FK_Lessons_CourseSections_SectionId: public.Lessons.SectionId > public.CourseSections.Id [delete: cascade, update: no action]
+Ref FK_Resources_CAT_DocumentTypes_DocumentTypeId: public.Resources.DocumentTypeId > public.CAT_DocumentTypes.Id [delete: set null, update: no action]
+Ref FK_Resources_Lessons_LessonId: public.Resources.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+Ref FK_Videos_Lessons_LessonId: public.Videos.LessonId > public.Lessons.Id [delete: cascade, update: no action]
+
+// Context-only links without physical FKs in source are described, never fabricated as Ref.
