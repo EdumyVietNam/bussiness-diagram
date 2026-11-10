@@ -1,0 +1,1823 @@
+{
+  "version": "3.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "relationshipMode": "All",
+    "tablePositions": [
+      {
+        "name": "AspNetUsers",
+        "schemaName": "public",
+        "x": 847.4033203125,
+        "y": 1320
+      },
+      {
+        "name": "AspNetRoles",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1072
+      },
+      {
+        "name": "AspNetRoleClaims",
+        "schemaName": "public",
+        "x": 847.4033203125,
+        "y": 1113
+      },
+      {
+        "name": "AspNetUserClaims",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 1113
+      },
+      {
+        "name": "AspNetUserLogins",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 1319
+      },
+      {
+        "name": "AspNetUserRoles",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 1526
+      },
+      {
+        "name": "AspNetUserTokens",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 1668
+      },
+      {
+        "name": "UserActionTokens",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 1874
+      },
+      {
+        "name": "InstructorRequests",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 2240
+      },
+      {
+        "name": "UserDocuments",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 2510
+      },
+      {
+        "name": "CAT_InstructorApplicationRequirements",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1246
+      },
+      {
+        "name": "CAT_Levels",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1548
+      },
+      {
+        "name": "CAT_Occupations",
+        "schemaName": "public",
+        "x": 12,
+        "y": 1870
+      },
+      {
+        "name": "CAT_Provinces",
+        "schemaName": "public",
+        "x": 12,
+        "y": 2224
+      },
+      {
+        "name": "Courses",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 3115
+      },
+      {
+        "name": "CourseSections",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 1574
+      },
+      {
+        "name": "Lessons",
+        "schemaName": "public",
+        "x": 3372.23486328125,
+        "y": 1281
+      },
+      {
+        "name": "Articles",
+        "schemaName": "public",
+        "x": 4057.36962890625,
+        "y": 1281
+      },
+      {
+        "name": "Videos",
+        "schemaName": "public",
+        "x": 4057.36962890625,
+        "y": 1551
+      },
+      {
+        "name": "Resources",
+        "schemaName": "public",
+        "x": 4057.36962890625,
+        "y": 1917
+      },
+      {
+        "name": "CAT_CourseTypes",
+        "schemaName": "public",
+        "x": 12,
+        "y": 2558
+      },
+      {
+        "name": "CAT_SubjectCategories",
+        "schemaName": "public",
+        "x": 12,
+        "y": 2880
+      },
+      {
+        "name": "CAT_Tags",
+        "schemaName": "public",
+        "x": 12,
+        "y": 3214
+      },
+      {
+        "name": "CAT_DocumentTypes",
+        "schemaName": "public",
+        "x": 12,
+        "y": 3516
+      },
+      {
+        "name": "Enrollments",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 2004
+      },
+      {
+        "name": "ExamEnrollments",
+        "schemaName": "public",
+        "x": 4783.251953125,
+        "y": 1113
+      },
+      {
+        "name": "EnrollmentSectionCompletions",
+        "schemaName": "public",
+        "x": 3372.23486328125,
+        "y": 1679
+      },
+      {
+        "name": "Exams",
+        "schemaName": "public",
+        "x": 4057.36962890625,
+        "y": 2251
+      },
+      {
+        "name": "Questions",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 2844
+      },
+      {
+        "name": "QuestionOptions",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 1176
+      },
+      {
+        "name": "ExamQuestions",
+        "schemaName": "public",
+        "x": 4783.251953125,
+        "y": 1351
+      },
+      {
+        "name": "ExamAttempts",
+        "schemaName": "public",
+        "x": 4783.251953125,
+        "y": 1526
+      },
+      {
+        "name": "AttemptQuestions",
+        "schemaName": "public",
+        "x": 5391.48291015625,
+        "y": 1072
+      },
+      {
+        "name": "AttemptAnswers",
+        "schemaName": "public",
+        "x": 5391.48291015625,
+        "y": 1342
+      },
+      {
+        "name": "CAT_ExamCategories",
+        "schemaName": "public",
+        "x": 12,
+        "y": 3838
+      },
+      {
+        "name": "CAT_GradingRules",
+        "schemaName": "public",
+        "x": 350.890625,
+        "y": 12
+      },
+      {
+        "name": "CourseEssayAssignments",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 2371
+      },
+      {
+        "name": "CourseEssaySubmissions",
+        "schemaName": "public",
+        "x": 3372.23486328125,
+        "y": 2013
+      },
+      {
+        "name": "Certificates",
+        "schemaName": "public",
+        "x": 4783.251953125,
+        "y": 1957
+      },
+      {
+        "name": "PaymentOrders",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 3801
+      },
+      {
+        "name": "PaymentOrderItems",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 2674
+      },
+      {
+        "name": "PaymentTransactions",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 3008
+      },
+      {
+        "name": "Vouchers",
+        "schemaName": "public",
+        "x": 847.4033203125,
+        "y": 2177
+      },
+      {
+        "name": "UserVouchers",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 3598
+      },
+      {
+        "name": "VoucherGrantCampaigns",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 4727
+      },
+      {
+        "name": "VoucherGrantRules",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 4791
+      },
+      {
+        "name": "VoucherGrantCampaignResults",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 4124
+      },
+      {
+        "name": "VoucherUsages",
+        "schemaName": "public",
+        "x": 3372.23486328125,
+        "y": 2443
+      },
+      {
+        "name": "CAT_VoucherTypes",
+        "schemaName": "public",
+        "x": 12,
+        "y": 4172
+      },
+      {
+        "name": "CourseComments",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 4414
+      },
+      {
+        "name": "ExamComments",
+        "schemaName": "public",
+        "x": 4783.251953125,
+        "y": 2343
+      },
+      {
+        "name": "Reports",
+        "schemaName": "public",
+        "x": 4783.251953125,
+        "y": 2677
+      },
+      {
+        "name": "Conversations",
+        "schemaName": "public",
+        "x": 2349.95263671875,
+        "y": 5723
+      },
+      {
+        "name": "ChatMessages",
+        "schemaName": "public",
+        "x": 3372.23486328125,
+        "y": 2948
+      },
+      {
+        "name": "Notifications",
+        "schemaName": "public",
+        "x": 847.4033203125,
+        "y": 2799
+      },
+      {
+        "name": "UserNotifications",
+        "schemaName": "public",
+        "x": 1593.28564453125,
+        "y": 4488
+      },
+      {
+        "name": "NotificationOutbox",
+        "schemaName": "public",
+        "x": 1218.29443359375,
+        "y": 12
+      },
+      {
+        "name": "CAT_NotificationTypes",
+        "schemaName": "public",
+        "x": 12,
+        "y": 4474
+      },
+      {
+        "name": "chunks",
+        "schemaName": "ai",
+        "x": 3247.91650390625,
+        "y": 12
+      },
+      {
+        "name": "course_indexes",
+        "schemaName": "ai",
+        "x": 2664.90625,
+        "y": 12
+      },
+      {
+        "name": "reindex_jobs",
+        "schemaName": "ai",
+        "x": 3247.91650390625,
+        "y": 602
+      },
+      {
+        "name": "chat_history",
+        "schemaName": "ai",
+        "x": 2241.89599609375,
+        "y": 12
+      },
+      {
+        "name": "chat_sessions",
+        "schemaName": "ai",
+        "x": 1658.8857421875,
+        "y": 12
+      },
+      {
+        "name": "course_reindex_outbox",
+        "schemaName": "ai",
+        "x": 756.77294921875,
+        "y": 12
+      },
+      {
+        "name": "test_vector_backup",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "session_id"
+        ],
+        "firstTableName": "chat_history",
+        "firstSchemaName": "ai",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "id"
+        ],
+        "secondTableName": "chat_sessions",
+        "secondSchemaName": "ai",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "course_id",
+          "generation_id"
+        ],
+        "firstTableName": "chunks",
+        "firstSchemaName": "ai",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "course_id",
+          "generation_id"
+        ],
+        "secondTableName": "course_indexes",
+        "secondSchemaName": "ai",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "course_id",
+          "generation_id"
+        ],
+        "firstTableName": "reindex_jobs",
+        "firstSchemaName": "ai",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "course_id",
+          "generation_id"
+        ],
+        "secondTableName": "course_indexes",
+        "secondSchemaName": "ai",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "LessonId"
+        ],
+        "firstTableName": "Articles",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Lessons",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "RoleId"
+        ],
+        "firstTableName": "AspNetRoleClaims",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetRoles",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "AspNetUserClaims",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "AspNetUserLogins",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "RoleId"
+        ],
+        "firstTableName": "AspNetUserRoles",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetRoles",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "AspNetUserRoles",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "AspNetUserTokens",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "LevelId"
+        ],
+        "firstTableName": "AspNetUsers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_Levels",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "OccupationId"
+        ],
+        "firstTableName": "AspNetUsers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_Occupations",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ProvinceId"
+        ],
+        "firstTableName": "AspNetUsers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_Provinces",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "AttemptId"
+        ],
+        "firstTableName": "AttemptAnswers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "ExamAttempts",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "SelectedOptionId"
+        ],
+        "firstTableName": "AttemptAnswers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "QuestionOptions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "QuestionId"
+        ],
+        "firstTableName": "AttemptAnswers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Questions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "AttemptId"
+        ],
+        "firstTableName": "AttemptQuestions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "ExamAttempts",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "QuestionId"
+        ],
+        "firstTableName": "AttemptQuestions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Questions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ParentId"
+        ],
+        "firstTableName": "CAT_ExamCategories",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_ExamCategories",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ParentId"
+        ],
+        "firstTableName": "CAT_Occupations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_Occupations",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ParentId"
+        ],
+        "firstTableName": "CAT_Provinces",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_Provinces",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ParentId"
+        ],
+        "firstTableName": "CAT_SubjectCategories",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_SubjectCategories",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "Certificates",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "Certificates",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamId"
+        ],
+        "firstTableName": "Certificates",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Exams",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "SenderId"
+        ],
+        "firstTableName": "ChatMessages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ConversationId"
+        ],
+        "firstTableName": "ChatMessages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Conversations",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "InstructorId"
+        ],
+        "firstTableName": "Conversations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "StudentId"
+        ],
+        "firstTableName": "Conversations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "Conversations",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "CourseComments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ParentCommentId"
+        ],
+        "firstTableName": "CourseComments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CourseComments",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "CourseComments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "CourseEssayAssignments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "GradedBy"
+        ],
+        "firstTableName": "CourseEssaySubmissions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "StudentId"
+        ],
+        "firstTableName": "CourseEssaySubmissions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "AssignmentId"
+        ],
+        "firstTableName": "CourseEssaySubmissions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CourseEssayAssignments",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "CourseSections",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CreatorId"
+        ],
+        "firstTableName": "Courses",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseTypeId"
+        ],
+        "firstTableName": "Courses",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_CourseTypes",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "SubjectCategoryId"
+        ],
+        "firstTableName": "Courses",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_SubjectCategories",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "TagId"
+        ],
+        "firstTableName": "Courses",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_Tags",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "SectionId"
+        ],
+        "firstTableName": "EnrollmentSectionCompletions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CourseSections",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId",
+          "CourseId"
+        ],
+        "firstTableName": "EnrollmentSectionCompletions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "UserId",
+          "CourseId"
+        ],
+        "secondTableName": "Enrollments",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "Enrollments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "Enrollments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "PaymentOrderId"
+        ],
+        "firstTableName": "Enrollments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "PaymentOrders",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "ExamAttempts",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamId"
+        ],
+        "firstTableName": "ExamAttempts",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Exams",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "ExamComments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ParentCommentId"
+        ],
+        "firstTableName": "ExamComments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "ExamComments",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamId"
+        ],
+        "firstTableName": "ExamComments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Exams",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "ExamEnrollments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamId"
+        ],
+        "firstTableName": "ExamEnrollments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Exams",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "PaymentOrderId"
+        ],
+        "firstTableName": "ExamEnrollments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "PaymentOrders",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamId"
+        ],
+        "firstTableName": "ExamQuestions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Exams",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "QuestionId"
+        ],
+        "firstTableName": "ExamQuestions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Questions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CreatorId"
+        ],
+        "firstTableName": "Exams",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamCategoryId"
+        ],
+        "firstTableName": "Exams",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_ExamCategories",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "Exams",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "LessonId"
+        ],
+        "firstTableName": "Exams",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Lessons",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "InstructorRequests",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "SectionId"
+        ],
+        "firstTableName": "Lessons",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CourseSections",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "NotificationTypeId"
+        ],
+        "firstTableName": "Notifications",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_NotificationTypes",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "PaymentOrderId"
+        ],
+        "firstTableName": "PaymentOrderItems",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "PaymentOrders",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "PaymentOrders",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "VoucherId"
+        ],
+        "firstTableName": "PaymentOrders",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Vouchers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "PaymentOrderId"
+        ],
+        "firstTableName": "PaymentTransactions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "PaymentOrders",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "QuestionId"
+        ],
+        "firstTableName": "QuestionOptions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Questions",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CreatorId"
+        ],
+        "firstTableName": "Questions",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ResolvedBy"
+        ],
+        "firstTableName": "Reports",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "Reports",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CourseId"
+        ],
+        "firstTableName": "Reports",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Courses",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ExamId"
+        ],
+        "firstTableName": "Reports",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Exams",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "DocumentTypeId"
+        ],
+        "firstTableName": "Resources",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_DocumentTypes",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "LessonId"
+        ],
+        "firstTableName": "Resources",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Lessons",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "UserActionTokens",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "UserDocuments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "ApplicationTypeId"
+        ],
+        "firstTableName": "UserDocuments",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_InstructorApplicationRequirements",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "UserNotifications",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "NotificationId"
+        ],
+        "firstTableName": "UserNotifications",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Notifications",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "UserVouchers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "PaymentOrderId"
+        ],
+        "firstTableName": "UserVouchers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "PaymentOrders",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "GrantCampaignId"
+        ],
+        "firstTableName": "UserVouchers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "VoucherGrantCampaigns",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "VoucherId"
+        ],
+        "firstTableName": "UserVouchers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Vouchers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "LessonId"
+        ],
+        "firstTableName": "Videos",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Lessons",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserId"
+        ],
+        "firstTableName": "VoucherGrantCampaignResults",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "AspNetUsers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CampaignId"
+        ],
+        "firstTableName": "VoucherGrantCampaignResults",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "VoucherGrantCampaigns",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "VoucherId"
+        ],
+        "firstTableName": "VoucherGrantCampaigns",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Vouchers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "CampaignId"
+        ],
+        "firstTableName": "VoucherGrantRules",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "VoucherGrantCampaigns",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "PaymentOrderId"
+        ],
+        "firstTableName": "VoucherUsages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "PaymentOrders",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "UserVoucherId"
+        ],
+        "firstTableName": "VoucherUsages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "UserVouchers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "VoucherId"
+        ],
+        "firstTableName": "VoucherUsages",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "Vouchers",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "VoucherTypeId"
+        ],
+        "firstTableName": "Vouchers",
+        "firstSchemaName": "public",
+        "firstRelation": "*",
+        "secondFieldNames": [
+          "Id"
+        ],
+        "secondTableName": "CAT_VoucherTypes",
+        "secondSchemaName": "public",
+        "secondRelation": "1",
+        "checkPoints": []
+      }
+    ]
+  },
+  "views": {}
+}
